@@ -1,0 +1,622 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\graphicspath{ {figures/} }
+\usepackage{array}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[a4paper,%bindingoffset=0.2in,%
+            left=2.5cm,right=2.5cm,top=3cm,bottom=3cm%footskip=1.5pt
+            ]{geometry} %margins
+\usepackage{placeins}
+\usepackage{amsmath,amsfonts,amssymb}
+\newcommand{\underwrite}[3][]{% \underwrite[<thickness>]{<numerator>}{<denominator>}
+  \genfrac{}{}{#1}{}{\textstyle #2}{\scriptstyle #3}
+}
+\usepackage{titlesec}
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{parskip}
+\usepackage[framed,numbered,autolinebreaks, useliterate]{mcode}
+\lstset{language=Matlab}%
+\renewcommand{\familydefault}{\sfdefault}
+\numberwithin{equation}{section}
+
+\begin{document}
+
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
+
+\center % Center everything on the page
+ 
+%----------------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%----------------------------------------------------------------------------------------
+
+\begin{figure}[h]
+    \includegraphics[scale=0.5]{logos_bruface.pdf}\\[1cm] 
+\end{figure}
+
+%\textsc{\LARGE Brussels faculty of Engineering}\\[1.5cm] % Name of your university/college
+\vspace{1cm}
+%\textsc{\Large MEMO-H503 }\\[0.5cm] % Major heading such as course name
+\vspace{0.5cm}
+\textsc{\large Master Thesis in Electrical Engineering}\\[0.5cm] % Minor heading such as course
+%title
+\textsc{\large Romaric Noumo}\\[0.5cm]
+
+
+\HRule \\[0.5cm]
+{ \huge \bfseries MISO data driven modelling of the temperature of a Building}\\[0.4cm] % Title of your document
+\HRule \\[1.5cm]
+ 
+%\hspace{-1.5cm}
+%\begin{minipage}{1\textwidth}
+
+%\begin{flushleft} \large
+%\emph{Author:}\\
+%Romaric\textsc{ Noumo}  \\
+%\end{flushleft}
+%\end{minipage}
+
+%\hspace{1cm}
+\begin{minipage}{1\textwidth}
+\begin{flushright} \large
+\emph{Master	thesis	submitted	under	the	supervision	of:} \\
+Prof. John \textsc{Lataire} \\
+\vspace{1cm}
+\emph{The	co-supervision	of:} \\
+Prof. Valéry-Ann\textsc{ Jacobs} \\
+\vspace{1cm}
+\emph{In	order	to	be	awarded the	
+Master’s	Degree	in Electrical Engineering	} \\
+\end{flushright}
+\end{minipage}\\[2cm]
+
+
+
+
+\vfill
+{\large 2021-2022}\\[2cm] % Date, change the \today to a set date if you want to be precise
+
+\end{titlepage}
+
+%----------------------------------------------------------------------------------------
+%\clearpage
+\newpage
+
+\begin{abstract}
+
+The purpose of this thesis was to perform data-driven modelling to derive a MISO model of the the indoor operative temperature of a case-study building.The data was obtained from the Building simulator EnergyPlus. The inputs to the system being studied were the power of the heater in the building and the outdoor dry bulb temperature from weather files.The model obtained is to be used later on  for optimizing control strategies.
+
+In the literature current system identification approaches  being used are model reduction and Machine learning techniques.In this thesis model reduction techniques were used, in particular Linear Least square Techniques.Intuitively one could say that the response of the system to the the outdoor dry bulb temperature is a slower process than the response to the heater.This is why different denominators for  the transfer functions of the two inputs were obtained. 
+
+Using the data obtained from EnergyPlus, Linearity was first assessed and then for each input a a non-parametric model was obtained and then a first-order parametric model was then obtained using the non-parametric model. The heater power is a controllable input, as such, we can design it's input signal and  a multisine signal was chosen  as excitation signal to  determine the model from heater to indoor temperature.As for the dry bulb temperature,it is an uncontrollable input that is an arbitrary signal.It was  obtained from a weather file and was used as excitation signal to determine the model from dry bulb temperature to indoor temperature. 
+
+Using different denominators for the transfer function yielded models with good prediction accuracy which described well the data.In addition, the models obtained were of low complexity making simulations fast and the implementation  of control strategies simpler.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+
+\setlength{\parindent}{1em}
+
+\section{Introduction}
+\newpage
+\section{Heat transfer in Buildings}
+\newpage
+\section{Building Description}
+\newpage
+\section{System Identification}
+In this section some notions of system theory and identification used in this thesis are recalled.Firstly the definition of  what are Linear Time-Invariant (LTI) systems and their models.Then Models with non-linearity will be discussed afterwards we will discuss Transfer function estimation , model validation and stability. 
+
+\subsection{LTI Systems}
+
+The notion of a system is a broad concept.A system operates on an input signal to produce an output signal.The output is an observable signal that is of interest to us.Within the inputs we can distinguish the ones that can be manipulated by the observer from disturbances.The disturbances can be divided into those that are directly measured and those that are only observed through their influence on the output.The distinction between inputs and disturbances is often of less importance in the modelling process.
+
+Systems can be classified on the dependence of the current outputs with respect to previous ones.Dynamic systems are systems which current output not only depends on the current input but also on past outputs.They are said to have memory.In this thesis we are dealing with a dynamic system.Figure \ref{fig:system representation} shows the representation of the system with inputs $u$, output $y$ and system model $G$
+
+\begin{figure}[H]
+    \includegraphics[scale=1]{system.jpeg}
+    \centering
+    \caption{Representation of the system}
+    \label{fig:system representation}
+\end{figure}
+
+
+Linear Time-Invariant systems are systems that are Time-invariant and where the superposition principle holds.superposition principle means that the response of an LTI system behaves as follows:
+    
+\[y_{1}(t)=G\left\{u_{1}(t)\right\} \]
+\[y_{2}(t)=G\left\{u_{2}(t)\right\} \]
+\[a y_{1}(t)+b y_{2}(t)=G\left\{a u_{1}(t)+b u_{2}(t)\right\}\]
+
+Time-Invariance property means that the response does not depend on the time at which the excitation has been applied.A time-delay on the input produces an equivalent
+time-delay on the output.
+
+\[y(t)=G\left\{u_(t)\right\} \]
+\[y(t-\tau)=G\{u(t-\tau)\}\]
+
+Causality property is also of interest.A causal system means that the response of the system cannot depend on an excitation in the future.We supposed that our system was a causal LTI system. 
+
+\subsection{Response of LTI Systems}
+Any  continuous-time dynamic system can be described by a differential equation and a discrete-time dynamic system by a difference equation as follows:
+
+
+
+\[\sum_{k=0}^{n_{a}} a_{k} \frac{d^{k} y(t)}{d t^{k}}=\sum_{k=0}^{n_{b}} b_{k} \frac{d^{k} u(t)}{d t^{k}} \]
+
+In continuous-time ($t$ $\in \mathbb{R}$)
+
+\[\sum_{k=0}^{n_{a}} a_{k} y(n-k)=\sum_{k=0}^{n_{b}} b_{k} u(n-k)\]
+
+In discrete-time  ($n$ $\in \mathbb{Z}$)
+
+
+Using the Laplace transform for the continuous-time case and the Z transform for the discrete case one can obtain the transfer function $G$ which characterizes completely the system.The response of the system is expressed as follows:
+
+\begin{equation}\label{eq:sys.response}
+Y(j\omega)=G\left(j\omega\right) U(j \omega)+T^{\circ}(j\omega)
+\end{equation}
+
+where $G\left(j\omega\right)$ is system's transfer function, $U(j \omega)$ and $Y(j\omega)$ the input and output DFT spectra, $T^{\circ}(j\omega)$ the transient term and $j \omega$ a frequency complex variable.
+
+The first term of \eqref{eq:sys.response} is the steady-state response of the system.In the time domain, the transient term is exponentially decaying.It is actually the free response of the system that is the response when the input is zero in the measured time window.Therefore, when $t\rightarrow \infty$ that is at steady-state the system response is fully described by the transfer function response.
+
+It can be interesting to look into the particular class of periodic excitation. A Sinusoidal function is a sum of complex exponential:
+
+\[\sin (\omega t+\phi)=\frac{e^{j(\omega t+\phi)}+e^{-j(\omega t+\phi)}}{2 j}\]
+
+The response of an LTI system to a complex exponential  is a scaled version of the same complex
+exponential:
+
+\[G\left\{e^{j \omega t}\right\}=e^{j \omega t} G(j \omega)\]
+
+We therefore have that the response of an LTI system to a sine wave is also a sine wave  with same
+frequency as input, but with a different amplitude and phase.The complex exponential signal is therefore an eigenfunction of the system and $G(j \omega)$ evaluated at the frequency of the input is the corresponding eigenvalue of the system.$G(j \omega)$ being a complex-valued function, it can be split into an amplitude function A and a phase function $\Phi$:
+
+\[G(j \omega)=A(\omega) e^{j \Phi(\omega)}\]
+
+If we apply an input signal of the form $u(t)=\sin (\omega t+\phi)$, then the output is given as:
+
+
+\[y(t)=G\{\sin (\omega t+\phi)\} =A \sin (\omega t+\phi+\Delta \phi)\]
+\[A =|G(\omega)| \]
+\[\Delta \phi =\angle G(\omega)\]
+
+Where A and $\Delta \phi$ are  the amplitude  and phase of the transfer function respectively.By applying a sine to an LTI System we can easily characterize the system.Fig\ref{fig:single sine} shows the result in the time domain of a heater sine wave of RMS value 1.4kW applied to our system.
+
+\begin{figure}[H]
+    \includegraphics[scale=0.7]{single_sine_rms_1400.eps}
+    \caption{Response of the system to a sinusoidal heater input of RMS value 1.4kw}
+    \label{fig:single sine}
+\end{figure}
+
+We can see from the result that the output to the sine excitation is also a sine wave with no phase shift.For this signal excitation level,the LTI assumption hold true.
+
+\subsection{Nonlinear models}
+Since most of the relationships in physics are nonlinear,nearly all systems are inherently nonlinear in nature.In reality the linearity assumption is only approximately valid.Most systems are only linear to a first approximation.Moreover,they are a special case of nonlinear systems in limited ranges of operation.Fig\ref{fig:examplenonlinear} shows some examples of nonlinear relationships.
+
+
+\begin{figure}[H]
+    \includegraphics[scale=1]{examplenonlinear.JPG}
+    \centering
+    \caption{some examples of nonlinear relationships}
+    \label{fig:examplenonlinear}
+\end{figure}
+
+
+
+Depending on the excitation level, the output is disturbed by nonlinear distortions so that the linearity assumption no longer holds.The term nonlinear distortions indicates that nonlinear systems with a linear term are considered. The deviations from the linear behavior are called nonlinear distortions.The goal of this section is not to show how nonlinear systems should be modeled but provide an insight on how nonlinear distortions can impact the validity of the obtained models.
+
+Let us consider an excitation signal
+
+\[u(t)=\sum_{m=1}^{K} A_{m} \cos \left(\frac{2 \pi m}{T} t+\phi_{m}\right)\]
+\[\omega=\frac{2 \pi m}{T}\]
+
+This signal is called a multisine because it consists of a sum of sines.Since it is a periodic excitation, the considerations on the response of such signals stated above also apply.To detect the nonlinear behaviour a periodic excitation is needed.Considering a nonlinear system $y=u^{\alpha}$ excited by a multisine at the frequencies $\pm \omega_{k}, k=1, \ldots, F$ and remembering that a signal has  positive and negative frequencies and that multisines are sum of complex exponentials the output will yield products of exponentials.The frequencies at the output of such a system are given by making all possible combinations of $\alpha$ frequencies, including repeated frequencies, selected from the set of 2F excited frequencies.
+
+\[\sum_{i=1}^{\alpha} \omega_{k_{i}}, \text { with } \omega_{k_{i}} \in\left\{-\omega_{F}, \ldots,-\omega_{1}, \omega_{1}, \ldots, \omega_{F}\right\} \text {. }\]
+
+Further,the components at $n\omega_{k_{i}}$ with $n > 1$ are the harmonics of $\omega_{k_{i}}$ and the ones obtained by combinations of the harmonics are the intermodulation products.The harmonics and intermodulation products are often unwanted. Therefore, we refer to these signals as nonlinear distortion.
+
+To detect the nonlinearities the idea is to design a multisine  that excites a well-selected set of odd frequencies.Odd frequencies correspond  to odd values of $i$ in the summation above.Even nonlinearities show up at the even frequencies because an even number of odd frequencies is added together. Odd nonlinearities are present only at the odd frequencies because an odd number of odd frequencies is added together. At the odd frequencies that are not excited at the input, the odd nonlinear distortions become visible at the output because the linear part of the model does not contribute to the output at these frequencies.By using a different color for each of these
+contributions, it becomes easy to recognize these in an amplitude spectrum plot of the output signal. Fig \ref{fig:MS_1.4},  Fig \ref{fig:MS_2.5} and  Fig \ref{fig:MS_4.0} shows the result of three simulations obtained with different multisine heater  excitation levels.
+
+\begin{figure}[H]
+    \includegraphics[scale=0.6]{fdomain_input_rms_1400.eps}
+    \centering
+    \caption{Multisine with RMS value of 1.4 kW}
+    \label{fig:MS_1.4}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[scale=0.5]{fdomain_input_rms_2500.eps}
+    \centering
+    \caption{Multisine with RMS value of 2.5 kW}
+    \label{fig:MS_2.5}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[scale=0.6]{fdomain_input_rms_4000.eps}
+    \centering
+    \caption{Multisine with RMS value of 4 kW}
+    \label{fig:MS_4.0}
+\end{figure}
+
+From the reults we can notice that as the excitation level increases the nonlinearities also increases.The system is subject to nonlinearities.The blue contribution is the response of the system to the excited input frequencies ie the Linear response contribution.The green dots correspond to the odd non excited nonlinear contributions.We also notice the appearance of a smooth red contribution at the output.This contribution is due to the transient and even nonlinearities.As long as the the ratio of the level of the nonlinearities to the level of thelinear contribution is proper one can assume the LTI assumption to hold true.
+
+
+
+
+\subsection{System Identification procedure}
+Identification session consists of a series of basic steps.In each session the following actions should be taken:
+\begin{itemize}
+    \item Collect information about the system.
+    \item Select a model structure to represent the system.
+    \item Choose the model parameters to fit as well as possible the model to the measurements:
+selection of a goodness of fit criterion.
+     \item Validate the selected model.
+\end{itemize}
+
+\subsubsection{Information collection}
+Building a model requires one should first get information about the system.This can be done by just observing the natural dynamics of the system for example vibration analysis of a bridge that is excited by normal traffic,but most often it is more efficient to set up dedicated experiments that actively excite the system for example like the controlled excitation of a mechanical structure using a shaker.The controlled excitation has to be selected to optimize  goals  for example like minimum time, minimum time, or minimum power consumption of the experiment within operator constraints like the excitation should remain below a maximum allowable level as we saw in previous sections.
+
+Additionally, data pre-processing and pre-filtering  may be necessary as the collected data in its raw form is not usually ready to be used for model development.Aside from noise that affects data quality two other factors like outliers and missing data may have to be dealt with.Outliers is data that do not conform to other parts of the data largely due to sensor malfunction while  missing data which may be due to power disruption,sensor malfunctioning or data transfer losses. 
+
+Handling outliers might be tricky and rely on statistical methods.Nevertheless, if the input excitation signal is periodical and if multiple period measurement are available then we can simply replace the value we suspect to be an outlier with the value from another period.Missing data can be handled by interpolating the value between the two nearest neighbours of the missing one.As for pre-filtering it may be desirable to emphasize fits over a specific frequency range either due to the needs of that application and/or it is known that the noise dominates the measurement outside this band.In either case  filtering the measurements prior to identification may be useful.
+
+\subsubsection{Model Structure Selection}
+Multiple mathematical models can be used to represent a system.A choice should be made within the wide variety of possibilities such as:
+
+\subsubsection*{ Non-parametric models versus Parametric models }
+The term non-parametric does not imply that the model does not have unknowns or parameters.It implies that the model do not have any mathematical structure for the response of the system.As an example let us consider the step response model of a system, which is simply the set of step response coefficients at the sampling instants.In a Non-parametric model the system is characterized by measurements of a system function at a large number of points If the system is assumed to have first-order characteristics, then the response can be characterized by three parameters, namely, gain,time-constant and time-delay.When the response coefficients are directly estimated, it is termed as non-parametric identification.FRF(Frequency response function) measurement is another example of non-parametric model.Fig shows the impulse response of a system at a large number of points.
+
+\begin{figure}[H]
+    \includegraphics[scale=1]{impulse_response.JPG}
+    \centering
+    \caption{impulse response of a system at a large number of points}
+    \label{fig:imp_res}
+\end{figure}
+
+
+The term parametric refers to the parametrization of the model.The system is described using a limited number of characteristic quantities called the parameters of the model.They possess a  specific structure and order.An example of a parametric model is a transfer function,where the parameters are the coefficients of the polynomials defining the numerator and the denominator.primarily three broad classes of parametric model families exist,
+namely, the equation-error , output-error and the Box-Jenkins family.
+
+The Equation-eerror models is made-up of a system model $G$ and noise model $H$ and has different structures (ARX,ARMAX,ARMA).The output-error assumes that the noise directly affects the output.The Box-Jenkins resorts to an independent parametrization of the system and noise models.Fig\ref{fig:par_res} shows the representation of a parametric input-output relationship.
+
+\begin{figure}[H]
+    \includegraphics[scale=1]{parametric_repre.JPG}
+    \centering
+    \caption{representation of a parametric input-output relationship}
+    \label{fig:par_res}
+\end{figure}
+
+
+\[Y(k)=G\left(\Omega_{k}, \theta\right) U(k)+T_{G}\left(\Omega_{k}, \theta\right)+H\left(\Omega_{k}, \theta\right) E(k)+T_{H}\left(\Omega_{k}, \theta\right)\]
+
+\noindent
+where
+\[G(\Omega, \theta)=\frac{B(\Omega, \theta)}{A(\Omega, \theta)}, T_{G}(\Omega, \theta)=\frac{I_{G}(\Omega, \theta)}{A(\Omega, \theta)}, H\left(\Omega_{k}, \theta\right)=\frac{C(\Omega, \theta)}{D(\Omega, \theta)}, T_{H}(\Omega, \theta)=\frac{I_{H}(\Omega, \theta)}{D(\Omega, \theta)}\]
+
+\noindent
+and the numerators and denominators of the expressions polynomials
+\[\Omega_{k}=j\omega_{k}\]
+\[\theta:\;parameters\]
+\[ARX:\; C=1,\; D=A,\; T_{H}=0\]
+\[ARMAX:\; D=A,\; T_{H}=0 \]
+\[ARMA:\; G=0,\; T_{G}=0\]
+\[OE:\; G(\Omega, \theta)=\frac{B(\Omega, \theta)}{F(\Omega, \theta)},\;\;H=1 ,\;\; T_{H}=0  \]
+\[BJ:\; D \neq A\]
+
+
+Non-parametric models can be estimated with minimal a priori knowledge while the estimation of parametric models demands some a priori knowledge.The a priori knowledge needed can be obtained from physical insight of the system.It can also be acquired by first estimating a non-parametric model.
+
+\subsubsection*{ White box models versus black box models }
+White box models are models that require specialized knowledge related to a scientific field.That is the modelling requires understanding of physical laws such as for example Kirchhoff’s and Newton’s laws.The white box model is often used to gain insight into working principles of a system and they are those models that are used in simulation softwares.
+
+Black box models do not require detailed study using physical laws of the system to obtain a model.The model is estimated  using only the observed input and output measurements.Black box models are usually used when only output prediction of the system is needed. 
+
+\subsubsection*{ Linear models versus nonlinear models }
+Linear system identification framework has seen much more development and is more complete than the nonlinear identification framework that  requires more data and is more involved.In real life almost every system is nonlinear and  can be linearised around an operation region to obtain a linear model which is more simpler to handle.The choice of model depends on if the linear behaviour is dominant or not.
+
+\subsubsection*{ Linear-in-the-parameters versus nonlinear-in-the-parameters }
+A model is called linear-in-the-parameters if there exists a linear relation between these parameters $\theta$ and the error $\epsilon$ that is minimized.
+
+\[\epsilon=y-K(u) \theta\]
+\[K \in \mathrm{R}^{N \times n_{\theta}}\]
+
+Linearity in the parameters has a strong impact on the complexity of the estimators such that the optimization problem that can be solved analytically  otherwise an iterative optimization has to be performed.
+
+\subsubsection{ Estimation}
+Once a model structure is chosen,the estimation can then be carried out.Using the observed information about the system and the model structure, an optimization problem has to be solved that minimizes a criterion characterizes the point of optimum in the search.
+
+Several estimation method exists and the choice of the optimization criterion determines the stochastic properties of the estimator such as the bias, variance and consistency.An example of estimation method is the Least squares method which has the generic form
+
+\[\min _{\theta}\left\|\mathbf{y}_{N}-\hat{y}(\theta)\right\|_{2}^{2}\]
+
+\noindent
+where $\mathbf{y}_{N}$ is the vector of stacked measurements, $\hat{y}(\theta)$ is the predictor expression resulting from a model and $\theta$ are the vector of model parameters.
+
+\subsubsection{Model validation}
+The validity of the model obtain should be accessed.We need to know if the model describes well the dynamics of the system.Usually the available data for the modelling exercise is partitioned in 2 data sets.An estimation set and a validation set.Modelling errors are errors due to the model's inability  to predict the  validation data set .There might be several reasons to this.One reason can be over-fitting of the estimation data set thereby equally modelling noise.The choice of the model structure might not be the right one.The estimation data set might not be informative enough and therefore a new data set is required.Non-linear distortions might also be a reason, a new model structure should then be chosen.The Identification framework being iterative,the procedure might be done several times before obtaining a proper model. 
+
+\newpage
+\section{Method}
+This section deals with details of the various methods as well as the results obtained using the methods to obtain models.As showed in the previous chapters the dynamics from heater to operative temperature and the one from Dry bulb temperature to operative temperature are not the same.By estimating  a transfer matrix instead of a transfer function one could obtain a better system model.The expression of the input-output relationship will then be as follows:
+
+\begin{gather}
+Y(k)=G_{1}\left(\Omega_{k}, \theta\right) U_{1}(k)+G_{2}\left(\Omega_{k}\theta\right) U_{2}(k)+T_{G}\left(\Omega_{k}, \theta\right) \label{eq:matrix form}\\
+Y=\mathbf{G}U + T
+\end{gather}
+
+\noindent
+Where $ U_{1}(k)$ and $ U_{2}(k)$ are the DFT of the heater input and Dry bulb temperature respectively. $Y(k)$ the DFT of the output.$G_{1}$ and $G_{2}$ are the transfer function from heater to operative temperature and the transfer function from dry bulb temperature to operative temperature respectively.$\mathbf{G}=$
+ $\begin{bmatrix}
+  G_{1} & G_{2}\\ 
+\end{bmatrix}$, $U=$
+ $\begin{bmatrix}
+  U_{1}\\ 
+  U_{2}
+\end{bmatrix}$, $Y$, $U_{1}$ and $U_{2}$ $\in \mathrm{R}^{1 \times N}$. N the number of data samples.
+
+Using the Building defined in EnergyPlus, the system is simulated.We have two inputs, one controllalable that we can design and another one uncontrollable.These two inputs are taken into account by EnergyPlus and the operative temperature is computed by the software.Then using the output from EnergyPlus we can carryout the Identification procedures using Matlab to obtain our models.Fig shows a schematic of the procedure.
+
+
+From \ref{eq:matrix form} we can see that there is at least two models to estimate $G_{1}$ and $G_{2}$ and as we assumed the system to be an LTI one superposition principle holds true and then we might do the two models identification separately.For each model estimation, we will discuss the excitation design if it is a controllable input, the model structure, the estimation method, results and model validation.
+
+\subsection{Data preprocessing}
+When the data is collected from the simulation software it is not in shape for immediate use in the identification algorithms.Some operations needs to be done on the data.All the estimated method used in the identification are frequency domain methods.
+
+The first operation is then obviously to transform the data from the time domain to the frequency domain.To do so we apply the  Discrete Fourier Transform (DFT) on the time domain input and output signals:
+
+\begin{equation}
+\begin{array}{rll}
+u(t) & \stackrel{\mathrm{DFT}}{\longrightarrow} & U(j \omega) \\
+y(t) & \stackrel{\mathrm{DFT}}{\longrightarrow} & Y(j \omega)
+\end{array}
+\end{equation}
+
+\noindent
+where the time and frequency vectors are given by :
+
+\begin{equation}
+\begin{aligned}
+t &=T_{s}\left[\begin{array}{lllll}
+0 & 1 & 2 & \cdots & N
+\end{array}\right] \quad \mathrm{s} \\
+\omega &=\frac{2 \pi}{N T_{s}}\left[\begin{array}{lllll}
+0 & 1 & 2 & \cdots & N
+\end{array}\right] \quad \mathrm{rad} / \mathrm{s}
+\end{aligned}
+\end{equation}
+
+The DFT conjugate symmetry property says that there is redundancy in the spectral content of a real-valued signal.The DFT of a  real-valued signal with $N$ samples has also $N$ samples.The conjugate symmetry implies that  the signal can be fully represented by a minimal set of frequencies $M$ smaller than $N$. $M$ depends on whether N is even or odd. The gain in using this property is when $N$ is large as there is a cut down in memory consumption and processing time. $M$ is obtained using the formula 
+
+\begin{equation}
+M=1+\left\lfloor\frac{N}{2}\right\rfloor   
+\end{equation}
+
+
+\noindent
+where $\lfloor\cdot\rfloor$ is the floor operator: the largest integer no greater than its input.The frequency vector becomes :
+
+\begin{equation}
+\begin{aligned}
+\omega &=\frac{2 \pi}{N T_{s}}\left[\begin{array}{lllll}
+0 & 1 & 2 & \cdots & M
+\end{array}\right] \quad \mathrm{rad} / \mathrm{s}
+\end{aligned}
+\end{equation}
+
+The thermal behaviour of a building being a slow process implies that the main information on the dynamics of the system is the low frequency components and that we should emphasize the modelling on the low frequency components.We therefore can only take into account the first few frequencies of the input-output spectra.The optimal new $M$ is to be obtained by iteration.
+
+\subsection{System Linearization}
+As we mentioned earlier systems in practice are nonlinear and are only linear in a limited range of operation.A linearization around a nominal operating point is then necessary.The objective of the linearization  is to derive a linear approximate system whose response will agree closely with that of the original nonlinear system which it comes from. By considering small variations around our nominal operating point($u_{o}$,$y_{o}$)
+
+\begin{equation}
+\begin{aligned}
+&y(t)=y^{m}(t)-y_{o} \\
+&u(t)=u^{m}(t)-u_{o}
+\end{aligned}
+\end{equation}
+
+\noindent
+Where $y^{m}$ and $u^{m}$ are the output and input time domain samples obtained from EnergyPlus. $y_{o}$,$u_{o}$ the mean value of $y^{m}$ and $u^{m}$ respectively. Then substituting this deviations into our nonlinear relationship $y=f(u)$. Fig\ref{eq:linearization} shows the linearization of $y=f(u)$ at an operating point ($u_{o}$,$f(u_{o})$)
+
+\begin{figure}[H]
+    \includegraphics[scale=1]{linearization.JPG}
+    \centering
+    \caption{linearization of $y=f(u)$ at an operating point ($u_{o}$,$f(u_{o})$)}
+    \label{eq:linearization}
+\end{figure}
+
+After linearization the frequency vector becomes:
+
+\begin{equation}
+\begin{aligned}
+\omega &=\frac{2 \pi}{N T_{s}}\left[\begin{array}{lllll}
+1 & 2 & \cdots & M
+\end{array}\right] \quad \mathrm{rad} / \mathrm{s}
+\end{aligned}
+\end{equation}
+
+\subsection{Identification of Heater Model G1}
+To obtain $G_{1}$ we will first obtain a non-parametric model of the system from Heater to operative temperature.This non-parametric model Will then be used to obtain the parametric one $G_{1}$.
+
+\subsubsection{ Excitation design }
+When we have a choice in the input signal to be used in the identification, optimization of the excitation signal both in the time domain and frequency domain can be made.Optimizing in the time domain results in a minimum crest factor.The crest factor is defined as
+
+$$
+\text { crest factor }=\frac{\text { peak value }}{\text { effective RMS value }}
+$$
+
+The effective RMS value $V_{RMSe}$ is given by
+
+$$
+V_{R M S e}=V_{R M S} \sqrt{\frac{\text { energy at the frequencies of interest }}{\text { total energy of the excitation }}}
+$$
+
+\noindent
+This results in an improved signal-to-noise(S/N) ratio, hence greater accuracy in the estimates.An optimal power spectrum can be obtained from the frequency domain.This results in an optimal distribution of the of the available energy of the excitation signal resulting in a minimal uncertainty on the estimates.
+
+The multisine was chosen as excitation signal.It allows generation of an optimum power spectrum with a minimum crest factor.Additionally the multisine can also be used to detect nonlinear distorsions as discussed earlier.The spectral resolution $f_{o}$ of the multisine should be chosen high enough so that no sharp resonances are missed.Since $f_{0}=1 / T_{s}$ , it sets immediately the period length $T_{s}$ of the multisine. A high-frequency resolution requires a long measurement time because at least one, and preferably a few, periods should be measured.Unfortunately we are limited in the frequency resolution as the $T_{s}$ is limited in EnergyPlus.
+
+\subsubsection{ Model structure }
+The choice of the model depends on the aim of the model.The aim of the model is for control purposes.With regard to this the choice made was a continuous time parametric black-box model.
+
+\subsubsection{Estimation Method Non-parametric model}
+The Non-parametric model to be determined is a Frequency Response Function (FRF).Using a multisine,  characterization of the nonlinear distortions is also possible and we will describe the Robust method which enables its characterization in the next paragraph.In pratice data is obtained from measurements and noise is present.To obtain the FRF, averaging techniques are often used to reduce FRF measurements errors.Starting from $M$ successive periods of  input-output data blocks $u^{[l]}(t), y^{[l]}(t), \quad l=1,2, \ldots, M$ the inputs and outputs are averaged over those periods to obtain sample mean and sample covariances and the FRF estimate is given as
+
+\begin{equation}
+\hat{G}\left(j \omega_{k}\right)=\frac{\hat{Y}(k)}{\hat{U}(k)}
+\end{equation}
+
+\noindent
+Where the sample mean and sample covariances are given as
+
+$$
+\hat{U}(k)=\frac{1}{M} \sum_{l=1}^{M} U^{[l]}(k), \quad \hat{Y}(k)=\frac{1}{M} \sum_{l=1}^{M} Y[l](k)
+$$
+
+$$
+U^{[l]}(k)=\operatorname{DFT}\left(u^{[l]}(n)\right), \quad Y^{[l]}(k)=\operatorname{DFT}\left(y^{[l]}(n)\right)
+$$
+
+\begin{equation}\label{eq:covar}
+\begin{aligned}
+&\hat{\sigma}_{U}^{2}(k)=\frac{1}{M-1} \sum_{l=1}^{M}\left|U^{[l]}(k)-\hat{U}(k)\right|^{2}, \hat{\sigma}_{Y}^{2}(k)=\frac{1}{M-1} \sum_{l=1}^{M}\left|Y^{[l]}(k)-\hat{Y}(k)\right|^{2} \\
+&\hat{\sigma}_{Y U}^{2}(k)=\frac{1}{M-1} \sum_{l=1}^{M}\left(Y^{[l]}(k)-\hat{Y}(k)\right)\left(\overline{U^{[l]}(k)-\hat{U}(k)}\right)
+\end{aligned}
+\end{equation}
+
+The aim of the robust method is to obtain the best linear approximation $G_{BLA}$, the linear system that fits best the data and the nonlinear noise, the contribution of nonlinear distortions and noise.Starting from multiple experiments with odd random phase multisines, for each experiment a number of consecutive a number of consecutive periods of the steady state response are measured, and the FRF corresponding to each period is calculated.Averaging of the FRFs over the consecutive periods quantifies the noise level.Averaging of these mean FRFs over the multiple experiments quantifies the sum of the remaining noise level and the level of the stochastic nonlinear distortions. Finally, the difference between the total distortion level (averaging over the experiments) and the noise level (averaging over the periods) is an estimate of the stochastic nonlinear distortions.The whole
+procedure is summarized in Figure\ref{fig:robust procedure}
+
+\begin{figure}[H]
+    \includegraphics[scale=0.9]{robust_procedure.JPG}
+    \centering
+    \caption{The robust procedure for estimating $G_{BLA}$}
+    \label{fig:robust procedure}
+\end{figure}
+
+\noindent
+
+$\hat{G}[m, p]$ is the FRF estimate of the $p$th period of the $m$th experiment, which depends on the BLA $G_{BLA}$, the stochastic nonlinear distortions $G_{S}^{[m]}$, and the noise $N_{G}^{[m, p]}$.$ \quad \hat{G}^{[m]}, \hat{\sigma}_{n}^{2[m]}$ are, respectively, the sample mean and sample noise variance over the periods of the $m$th   experiment.$\hat{G}_{\mathrm{BLA}},\hat{\sigma}_{G_{\mathrm{Bl.A}}^{2}}$ are, respectively, the sample mean and sample total variance over the $M$ experiments.Finally, $\hat{\sigma}_{G_{\mathrm{BLA}}}^{2}, n$ is the mean sample noise variance over the $M$ realizations.
+
+\paragraph{Results}
+
+3 realizations of random odd multisines of P=31 periods, N= 144 data points per period with F=14 excited frequencies and an RMS value for each of 2kW.Then the robust Method was applied to the measurements to determine the BLA, total variance (noise + NLdistorsions) and noise variance.Fig\ref{fig:multisine} and Fig\ref{fig:BLA} shows the multisines and BLA plot respectively.
+
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{multisine.png}
+    %\centering
+    \caption{Input Excitation signals Robust Method}
+    \label{fig:multisine}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{bla.png}
+    %\centering
+    \caption{Estimated $G_{BLA}$, total variance and noise variance}
+    \label{fig:BLA}
+\end{figure}
+
+From Fig\ref{fig:BLA} we can see the excited lines in black dots.The total variance and noise variance are almost at  the same level. There is a 30dB signal to distorsion level. The variances obtained at this phase are then later on used in the parametric model Identification. 
+
+\subsubsection{Estimation method parametric model}
+The estimator used to obtain $G_{1}$ is the Maximum Likelihood estimator. Starting from the measured input-output DFT $U(k)$, $Y(k)$ or from a measured frequency response function $G(s_{k})$. The 2F complex-valued vector Z contains the measured
+input-output (DFT) spectra , at a set of F frequencies $s_{k}$, $k = 1, 2, ...,F$
+ $$
+Z^{T}=\left[Z^{T}(1) Z^{T}(2) \ldots Z^{T}(F)\right] \text { with } Z^{T}(k)=[Y(k) U(k)]
+$$
+\noindent
+we can use the output error, which is the difference between the observed output $Y(k)$ and the modeled output $Y(s_{k},\theta)$ with $\theta$ the parameter vector. For periodic signals,
+
+\begin{equation}\label{eq:param}
+Y\left(s_{k}, \theta\right)=G\left(s{k}, \theta\right) U(k)
+\end{equation}
+
+$$
+G(s_{k}, \theta)=B(s_{k}, \theta) / A(s_{k}, \theta)
+$$
+
+$$
+e\left(s_{k}, \theta, Z(k)\right)=A\left(s_{k}, \theta\right) Y(k)-B\left(s_{k}, \theta\right) U(k)
+$$
+
+\noindent
+$e\left(s_{k}, \theta, Z(k)\right)$ is the equation error  which is the difference between the left- and right hand sides of \ref{eq:param}  after multiplication by $A\left(s_{k}, \theta\right)$.The maximum likelihood estimation consists in minimizing the  quadratic-like cost function $V_{ML}(\theta
+, Z)$
+
+\begin{equation}\label{eq:costfct}
+V_{\mathrm{ML}}(\theta, Z)=\sum_{k=1}^{F} \frac{\left|e\left(s_{k}, \theta, Z(k)\right)\right|^{2}}{\sigma_{e}^{2}\left(s_{k}, \theta\right)}
+\end{equation}
+
+Dividing the numerator and denominator of each term in \ref{eq:costfct} by $\left|A\left(s_{k}, \theta\right)\right|^{2}$ gives
+
+\begin{equation}\label{eq:costfctML}
+V_{\mathrm{ML}}(\theta, Z)=\sum_{k=1}^{F} \frac{\left|Y(k)-Y\left(s_{k}, \theta\right)\right|^{2}}{\sigma_{Y}^{2}\left(s_{k}, \theta\right)}
+\end{equation}
+
+\begin{equation}
+\hat{\theta}_{ML}(Z)=\arg  \min _{\theta} V_{ML}(\theta, Z)
+\end{equation}
+
+
+\noindent
+Where $\sigma_{Y}^{2}(s_{k}, \theta)$ is the variance of the output error and $\hat{\theta}_{ML}$ the paramater vector. It is obtained from the non-parametric analysis in \ref{eq:covar} .The maximum likelihood estimator weights the equation or output error at each frequency $s_{k}$ with its measurement uncertainty, so that frequency bands with high-quality
+measurements ( $\sigma_{U}^{2}(k)$ and $\sigma_{Y}^{2}(k)$ are small) contribute more to the ML (Maximum likelihood) cost than frequency bands with poor-quality measurements ( $\sigma_{U}^{2}(k)$ and $\sigma_{Y}^{2}(k)$ are large ).  Hence, in a natural way, the ML cost gives much confidence to accurate measurements while it rejects noisy measurements.
+
+Transfer function models are not linear in the parameter and it is not possible to find and analytical solution to the optimization problem.The optimization problem is solved by iterative procedures.The minimizer $\hat{\theta}_{ML}$ will be found by a Newton-Gauss type of algorithm.By defining 
+
+$$
+\varepsilon\left(s_{k}, \theta, Z(k)\right)=\left(Y(k)-Y\left(s_{k}, \theta\right)\right) / \sigma_{Y}\left(s_{k}, \theta\right)
+$$
+
+and rewriting \ref{eq:costfctML} as $V_{ML}(\theta, Z)=\varepsilon_{\mathrm{re}}^{T}(\theta, Z) \varepsilon_{\mathrm{re}}(\theta, Z)$, where ()$_{\mathrm{re}}$ stacks the real and imaginary
+parts on top of each other to obtain real parameters
+
+$$
+\varepsilon_{\mathrm{re}}(\theta, Z)=\left[\begin{array}{l}
+\operatorname{Re}(\varepsilon(\theta, Z)) \\
+\operatorname{Im}(\varepsilon(\theta, Z))
+\end{array}\right]
+$$
+
+Each iteration calculates an increment $\Delta \theta^{(i)}=\theta^{(i)}-\theta^{(i-1)}$ given by 
+
+$$
+J_{\mathrm{re}}^{T}\left(\theta^{(i-1)}, Z\right) J_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right) \Delta \theta^{(i)}=-J_{\mathrm{re}}^{T}\left(\theta^{(i-1)}, Z\right) \varepsilon_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right)
+$$
+
+Where $J(\theta, Z)=\partial \varepsilon(\theta, Z) / \partial \theta$ is the Jacobian of the vector $\varepsilon(\theta, Z)$
+
+$$
+J_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right) \Delta \theta^{(i)}=-\varepsilon_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right)
+$$
+
+$$
+\Delta \theta^{(i)}=-J_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right) \backslash \varepsilon_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right)
+$$
+
+\noindent
+And the new value $\theta^{(i)}=\Delta \theta^{(i)} + \theta^{(i-1)} $.The starting parameter values are obtained by linearization of the original optimization problem and to compute an analytical solution to the linearized form.This will be detailed later when discussing the Linear Least Square Estimator.The stop criterion of the iteration loop is when there is no longer a significant decrease of the cost function with iteration, then the prediction quality will not be further improved by continuing.
+
+\paragraph{Results}
+
+\newpage
+\section{Conclusion}
+
+\end{document}
