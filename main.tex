@@ -302,8 +302,10 @@ The Equation-eerror models is made-up of a system model $G$ and noise model $H$ 
     \label{fig:par_res}
 \end{figure}
 
+\begin{equation}\label{eq:trfctmodels}
+Y(k)=G\left(\Omega_{k}, \theta\right) U(k)+T_{G}\left(\Omega_{k}, \theta\right)+H\left(\Omega_{k}, \theta\right) E(k)+T_{H}\left(\Omega_{k}, \theta\right)    
+\end{equation}
 
-\[Y(k)=G\left(\Omega_{k}, \theta\right) U(k)+T_{G}\left(\Omega_{k}, \theta\right)+H\left(\Omega_{k}, \theta\right) E(k)+T_{H}\left(\Omega_{k}, \theta\right)\]
 
 \noindent
 where
@@ -516,7 +518,7 @@ $\hat{G}[m, p]$ is the FRF estimate of the $p$th period of the $m$th experiment,
 
 \paragraph{Results}
 
-3 realizations of random odd multisines of P=31 periods, N= 144 data points per period with F=14 excited frequencies and an RMS value for each of 2kW.Then the robust Method was applied to the measurements to determine the BLA, total variance (noise + NLdistorsions) and noise variance.Fig\ref{fig:multisine} and Fig\ref{fig:BLA} shows the multisines and BLA plot respectively.
+3 realizations of random odd multisines of P=31 periods, N= 144 data points per period with F=14 excited frequencies (Excited band $0-4.10^{-4}\;Hz$/ $0.0025\;rad/s$) and an RMS value for each of 2kW.The Dry Bulb outside temperature was set to zero in the weather file used by EnergyPlus. Then the robust Method was applied to the measurements to determine the BLA, total variance (noise + NLdistorsions) and noise variance.Fig\ref{fig:multisine} and Fig\ref{fig:BLA} shows the multisines and BLA plot respectively.
 
 
 \begin{figure}[H]
@@ -533,7 +535,17 @@ $\hat{G}[m, p]$ is the FRF estimate of the $p$th period of the $m$th experiment,
     \label{fig:BLA}
 \end{figure}
 
-From Fig\ref{fig:BLA} we can see the excited lines in black dots.The total variance and noise variance are almost at  the same level. There is a 30dB signal to distorsion level. The variances obtained at this phase are then later on used in the parametric model Identification. 
+From Fig\ref{fig:BLA} we can see the excited lines in black dots.The total variance and noise variance are almost at  the same level. There is a 30dB signal to distorsion level. The variances obtained at this phase are then later on used in the parametric model Identification.A simulation was carried out to predict the output using the Non-parametric model obtained.The Input signal is a Multisine with 3 excited frequencies and RMS value of 2kW.The 3 frequency components are the first 3 bins at which the BLA was estimated.Figure \ref{fig:Npinputoutput} shows the results.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{Np_In_oUT.png}
+    \centering
+    \caption{Non parametric model output Input output prediction}
+    \label{fig:Npinputoutput}
+\end{figure}
+
+\noindent
+We can see from figure \ref{fig:Npinputoutput} that the fit is not good but follows pretty well the dynamics of the system.It is a good starting point for the parametric model estimation.
 
 \subsubsection{Estimation method parametric model}
 The estimator used to obtain $G_{1}$ is the Maximum Likelihood estimator. Starting from the measured input-output DFT $U(k)$, $Y(k)$ or from a measured frequency response function $G(s_{k})$. The 2F complex-valued vector Z contains the measured
@@ -615,6 +627,149 @@ $$
 And the new value $\theta^{(i)}=\Delta \theta^{(i)} + \theta^{(i-1)} $.The starting parameter values are obtained by linearization of the original optimization problem and to compute an analytical solution to the linearized form.This will be detailed later when discussing the Linear Least Square Estimator.The stop criterion of the iteration loop is when there is no longer a significant decrease of the cost function with iteration, then the prediction quality will not be further improved by continuing.
 
 \paragraph{Results}
+To identify the parameters of the parametric model the same input-output measurements from the non-parametric model estimation were used.The order of the transfer function was chosen from 3 model orders by trial and error by checking the quality of the fit with the non-parametric model and the stability of the model.Once a suitable order provided satisfactory results a series of check were made with new measurements to check if the fit was still of quality.
+
+The blackbox model chosen was an Output-Error transfer function model (OE see Equation \ref{eq:trfctmodels} from chapter 4 ) whose order $n_{a}$ (order of the denominator)  and $n_{b}$
+ (order of the numerator) are still to be determined. Three different model orders
+were compared.The different values of  $n_{a}$ and $n_{b}$ are  presented
+in table \ref{table:model order}
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline  & n_{b} & n_{a} \\
+\hline 1) & 0 & 1  \\
+\hline 2) & 1 & 2  \\
+\hline 3) & 2 & 3  \\
+\hline
+\end{tabular}
+\caption{Transfer function model orders $G_{1}$}
+\label{table:model order}
+\end{table}
+
+\noindent
+For each model order, the Non parametric-parametric transfer function fit, pole-zero map and input-output measurements-estimation data  are presented and discussed.The simulation was done for the month of March.The Dry Bulb outside temperature was set to zero in the weather file used by EnergyPlus.Figure \ref{fig:G1mod0/1} shows the result for the first model order 0/1 ($n_{b}$/$n_{a}$)
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G1mod01FrfFit.png}
+  \caption{FRF fit}
+  \label{fig:frf fit G1mod0/1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G1mod01pzmap.png}
+  \caption{pole-zero map}
+  \label{fig:pzmap G1mod0/1}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[scale=0.38]{G1mod01InOut.png}
+  \caption{Measured and Estimated outputs}
+  \label{fig:inoutG10/1}
+\end{subfigure}
+\caption{Results $G_{1}$ Identification with a model order of 0/1 }
+\label{fig:G1mod0/1}
+\end{figure}
+
+\noindent
+From figure \ref{fig:inoutG10/1} we can see that the fit is not good.The model is able to predict some of the dynamics of the system but without a good accuracy. From figure \ref{fig:frf fit G1mod0/1} we can see that the fit is not good in the lower and upper end of the excited band.This yields a model that is too simple.From figure \ref{fig:pzmap G1mod0/1} we can see that the pole obtained is stable and is in the excited band.The second model order was analysed next.Figure \ref{fig:G1mod1/2} shows the results for the second model order 1/2 
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G1mod12FrfFit.png}
+  \caption{FRF fit}
+  \label{fig:frf fit G1mod1/2}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G1mod12pzmap.png}
+  \caption{pole-zero map}
+  \label{fig:pzmap G1mod1/2}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[scale=0.38]{G1mod12InOut.png}
+  \caption{Measured and Estimated outputs}
+  \label{fig:inoutG11/2}
+\end{subfigure}
+\caption{Results $G_{1}$ Identification with a model order of 1/2 }
+\label{fig:G1mod1/2}
+\end{figure}
+
+\noindent
+From figure \ref{fig:inoutG11/2} we can see that we have a good fit.Steady state is reached after around 4 days.From day1 to day4 we are in a transient state and the fit is not good.From day7 to day14 the fit is very good and from day15 to day22 the fit is good and it seems as if there is a periodic disturbance of period 7 days. From figure \ref{fig:frf fit G1mod1/2} we can see that the fit is good in the lower band than the previous fit.This yields a good model as the dynamics of the system are in the lowest frequency band.From figure \ref{fig:pzmap G1mod1/2} we can see that the poles obtained are stable and are in the excited band.The third model order was analysed next.Figure \ref{fig:G1mod2/3} shows the results for the third model order 2/3 
+
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G1mod23FrfFit.png}
+  \caption{FRF fit}
+  \label{fig:frf fit G1mod2/3}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G1mod23pzmap.png}
+  \caption{pole-zero map}
+  \label{fig:pzmap G1mod2/3}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[scale=0.38]{G1mod23InOut.png}
+  \caption{Measured and Estimated outputs}
+  \label{fig:inoutG12/3}
+\end{subfigure}
+\caption{Results $G_{1}$ Identification with a model order of 2/3 }
+\label{fig:G1mod2/3}
+\end{figure}
+
+\noindent
+From figure \ref{fig:inoutG12/3} we can see that the fit is as good as with the 1/2 model.From figure \ref{fig:pzmap G1mod2/3} we can see that one of the pole obtained is unstable and is outside of the excited band.This indicates that the model is too complex.From figure \ref{fig:frf fit G1mod2/3} we can see that the fit is better in the lower band and upper end of the excited band.Despite the improvement of the fit, the prediction accuracy did not improve and indicates that the non improvement of the fit is not due to modelling errors.The final model order chosen was the 1/2 model as it had a good FRF and output prediction fit and had stable poles.
+
+The second step was to do a cross validation check with new data set to validate the model obtained.Three  experiments were carried out, a first simulation with one day of data with input multisine signal,a second one with one day of data with input an arbitrary signal and a last one with one month of data with multisine input signal.The multisines's frequencies were all in the excitation band of the estimation.The Dry Bulb outside temperature was set to zero in the weather file used by EnergyPlus. Figure \ref{fig:G1onedayValidation15/07}shows the results of the model validation for one day of data.The simulation was done on the 15th of July with as input a multisine with an RMS value of 2kW.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{G1_15_07_MS.png}
+    \centering
+    \caption{$G_{1}$ validation model 15th of July multisine Result}
+    \label{fig:G1onedayValidation15/07}
+\end{figure}
+
+\noindent
+We can see from Figure \ref{fig:G1onedayValidation15/07} that the fit is good.The model is able to predict outputs with new data from another month different of the estimation month.The second experiment was also done on te 15th of July with an arbitary input excitation signal with an RMS value of 2.5kW. Figure \ref{fig:G1onedayValidation15/07Ran} shows the results obtained.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{G1_15_07_RanIn.png}
+    \centering
+    \caption{$G_{1}$ validation model 15th of July arbitrary Result}
+    \label{fig:G1onedayValidation15/07Ran}
+\end{figure}
+
+\noindent
+We can see from Figure \ref{fig:G1onedayValidation15/07Ran} that the fit is good.The model is able to predict outputs with new data with an input of different class than the one used for the estimation.The Last experiment was  done on the month of November with a Multisine input excitation signal with an RMS value of 2kW. Figure \ref{fig:G1onedayValidationNov} shows the results obtained.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{G1_val_NOV.png}
+    \centering
+    \caption{$G_{1}$ validation model month of November  Result}
+    \label{fig:G1onedayValidationNov}
+\end{figure}
+
+\noindent
+We can see from Figure \ref{fig:G1onedayValidationNov} that the fit is good.The model is able to predict outputs with new data and different month than the estimation month.The identification of the Heater model $G_{1}$ gave satisfactory results.The next step is the identification of the Dry Bulb to operative temperature $G_{2}$.
+
+\subsection{Identification of Dry Bulb Model G2 }
+
 
 \newpage
 \section{Conclusion}
