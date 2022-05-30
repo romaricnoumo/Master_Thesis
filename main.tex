@@ -619,15 +619,16 @@ $$
 J_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right) \Delta \theta^{(i)}=-\varepsilon_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right)
 $$
 
-$$
+\begin{equation}\label{eq;thethaMl}
 \Delta \theta^{(i)}=-J_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right) \backslash \varepsilon_{\mathrm{re}}\left(\theta^{(i-1)}, Z\right)
-$$
+\end{equation}
+
 
 \noindent
 And the new value $\theta^{(i)}=\Delta \theta^{(i)} + \theta^{(i-1)} $.The starting parameter values are obtained by linearization of the original optimization problem and to compute an analytical solution to the linearized form.This will be detailed later when discussing the Linear Least Square Estimator.The stop criterion of the iteration loop is when there is no longer a significant decrease of the cost function with iteration, then the prediction quality will not be further improved by continuing.
 
 \paragraph{Results}
-To identify the parameters of the parametric model the same input-output measurements from the non-parametric model estimation were used.The order of the transfer function was chosen from 3 model orders by trial and error by checking the quality of the fit with the non-parametric model and the stability of the model.Once a suitable order provided satisfactory results a series of check were made with new measurements to check if the fit was still of quality.
+To identify the parameters of the parametric model the same input-output measurements from the non-parametric model estimation were used.The order of the transfer function was chosen from 3 model orders  by checking the quality of the fit with the non-parametric model and the stability of the model.Once a suitable order provided satisfactory results a series of check were made with new measurements to check if the fit was still of quality.
 
 The blackbox model chosen was an Output-Error transfer function model (OE see Equation \ref{eq:trfctmodels} from chapter 4 ) whose order $n_{a}$ (order of the denominator)  and $n_{b}$
  (order of the numerator) are still to be determined. Three different model orders
@@ -746,7 +747,7 @@ The second step was to do a cross validation check with new data set to validate
 \end{figure}
 
 \noindent
-We can see from Figure \ref{fig:G1onedayValidation15/07} that the fit is good.The model is able to predict outputs with new data from another month different of the estimation month.The second experiment was also done on te 15th of July with an arbitary input excitation signal with an RMS value of 2.5kW. Figure \ref{fig:G1onedayValidation15/07Ran} shows the results obtained.
+We can see from Figure \ref{fig:G1onedayValidation15/07} that the fit is good.The model is able to predict outputs with new data from another month different of the estimation month.The second experiment was also done on the 15th of July with an arbitary input excitation signal with an RMS value of 2.5kW. Figure \ref{fig:G1onedayValidation15/07Ran} shows the results obtained.
 
 \begin{figure}[H]
     \includegraphics[width=\textwidth]{G1_15_07_RanIn.png}
@@ -769,7 +770,205 @@ We can see from Figure \ref{fig:G1onedayValidation15/07Ran} that the fit is good
 We can see from Figure \ref{fig:G1onedayValidationNov} that the fit is good.The model is able to predict outputs with new data and different month than the estimation month.The identification of the Heater model $G_{1}$ gave satisfactory results.The next step is the identification of the Dry Bulb to operative temperature $G_{2}$.
 
 \subsection{Identification of Dry Bulb Model G2 }
+Due to the nature of the excitation signal; the dry bulb outside temperature, the parametric model $G_{2}$ was obtained directly that is there was no non-parametric model estimated in a first step.
 
+\subsubsection{Excitation design}
+The dry bulb temperature being a non uncontrollable input,typical measurements value were obtained from a weather file.The robust method is to be used with sinusoidal input signal that is why a non-parametric model was not estimated.Usually to estimate the FRF multiple experiments are made and averaging techniques are then used to estimate the FRF.With data from the weather file only a single experiment could be made.
+
+\subsubsection{Model structure}
+The aim of the model is for control purposes.The choice is the same as for the $G_{1}$ model a continuous time parametric black-box model.More precisely an ARMAX transfer function whose whose order $n_{a}$,$n_{b}$ and order of the transient term $n_{i}$ are to be determined.The ARMAX transfer function  is of the form
+
+\begin{equation}
+\begin{aligned}
+Y(s_{k}) &=G(s_{k}, \theta) U(k)+T^{\circ}(s_{k}, \theta) \\
+&=\frac{B(s_{k}, \theta)}{A(s_{k}, \theta)} U(k)+\frac{I(s_{k}, \theta)}{A(s_{k}, \theta)}
+\end{aligned}
+\end{equation}
+
+\subsubsection{Estimation method}
+The estimator used to obtain $G_{2}$ is the linear least square estimator. Starting from the measured input-output DFT $U(k)$, $Y(k)$ or from a measured frequency response function $G(s_{k})$. The 2F complex-valued vector Z contains the measured
+input-output (DFT) spectra , at a set of F frequencies $s_{k}$, $k = 1, 2, ...,F$
+ $$
+Z^{T}=\left[Z^{T}(1) Z^{T}(2) \ldots Z^{T}(F)\right] \text { with } Z^{T}(k)=[Y(k) U(k)]
+$$
+\noindent
+ For arbitrary signals,the input-output relationship is of the form
+
+\begin{equation}\label{eq:armax}
+Y\left(s_{k}, \theta\right)=G\left(s{k}, \theta\right) U(k) + T_{G}\left(s_{k}, \theta\right)
+\end{equation}
+
+$$
+G(s_{k}, \theta)=B(s_{k}, \theta) / A(s_{k}, \theta)
+$$
+
+$$
+e\left(s_{k}, \theta, Z(k)\right)=A\left(s_{k}, \theta\right) Y(k)-B\left(s_{k}, \theta\right) U(k)- I\left(s_{k}, \theta\right)
+$$
+\noindent
+$e\left(s_{k}, \theta, Z(k)\right)$ is the equation error  which is the difference between the left- and right hand sides of \ref{eq:armax}  after multiplication by $A\left(s_{k}, \theta\right)$.The linear least square estimation consists in minimizing the  quadratic-like cost function $V_{LS}(\theta
+, Z)$
+
+\begin{equation}\label{eq:Levy}
+V_{\mathrm{LS}}(\theta, Z)=\sum_{k=1}^{F}\left|e\left(s_{k}, \theta, Z(k)\right)\right|^{2}
+\end{equation}
+
+\noindent
+For numerical purposes,we impose that $a_{0}$=1.This method was proposed by Levy.The drawback of this method is the the overemphasizing of high-frequency errors in \ref{eq:Levy}.Indeed, the term $A\left(s_{k}, \theta\right)$ has bigger values at high frequencies than at low frequencies and this result in poor low-frequency fits.A refined linearization method was proposed by Sanathanan.To obtain a better fit at low frequencies as well as at
+high frequencies, he proposes to approximate the denominator $A\left(s_{k}, \theta\right)$ in some parameter-independent way. The denominator at iteration $i$ is approximated by its expression at iteration $i-1$.
+
+\begin{equation}
+V_{LS}\left(Z, \theta^{(i)}\right)=\sum_{k=1}^{F}\left|\frac{A\left(s_{k}, \theta^{(i)}\right) Y_{m}(k)-B\left(s_{k}, \theta^{(i)}\right) U(k)-I\left(s_{k}, \theta^{(i)}\right)}{A\left(s_{k}, \hat{\theta}^{(i-1)}\right)}\right|^{2}
+\end{equation}
+
+\noindent
+The initial estimate used at iteration $i$=1 is obtained with the Levy estimation method.The estimate is of the same form as \ref{eq;thethaMl} (see Appendix for more details of the computation)
+
+\begin{equation}\label{eq:ThethaSanathanan}
+\Delta \theta^{(i)}=-J_{\mathrm{san}}\left(\theta^{(i-1)}, Z\right) \backslash \varepsilon_{\mathrm{san}}\left(\theta^{(i-1)}, Z\right)
+\end{equation}
+
+\paragraph{Results}
+The estimation was done with input data from a wzeather file and output data from EnergyPlus.The order of the transfer function was chosen from 3 model orders by checking the quality of the fit estimated and measured output and the stability of the model.Once a suitable order provided satisfactory results, series of check were made with new measurements to see if the prediction was still accurate.
+
+\noindent
+Three different model orders were compared.The different values of  $n_{a}$,$n_{b}$ and $n_{i}$ are  presented in table \ref{table:model order G_{2}}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline  & n_{b} & n_{a} & n_{i} \\
+\hline 1) & 0 & 1 & 2 \\
+\hline 2) & 1 & 2 & 3\\
+\hline 3) & 2 & 3 & 4\\
+\hline
+\end{tabular}
+\caption{Transfer function model orders $G_{2}$}
+\label{table:model order G_{2}}
+\end{table}
+
+\noindent
+For each model order, the pole-zero map and input-output measurements-estimation data  are presented and discussed.The simulation was done for the month of February.The Heater power was set to zero in EnergyPlus.Figure \ref{fig:G2mod0/1} shows the result for the first model order 0/1 ($n_{b}$/$n_{a}$) and $n_{i}$=2
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{Dft_drybulbFeb.png}
+  \caption{DFT dry bulb temperature month of February}
+  \label{fig:DFT G2mod0/1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2mod01pzmap.png}
+  \caption{pole-zero map}
+  \label{fig:pzmap G2mod0/1}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[scale=0.38]{G2mod01InOut.png}
+  \caption{Measured and Estimated outputs}
+  \label{fig:inoutG20/1}
+\end{subfigure}
+\caption{Results $G_{1}$ Identification with a model order of 0/1 and $n_{i}$=2}
+\label{fig:G2mod0/1}
+\end{figure}
+
+\noindent
+From figure \ref{fig:inoutG20/1} we can see that the fit is not good.The model is able to follow the dynamics of the system but lacks accuracy. From figure \ref{fig:DFT G2mod0/1} we can see that the excited band is from $0-1,67.10^{-3}\;Hz$/ $0.010\;rad/s$.From figure \ref{fig:pzmap G2mod0/1} we can see that the pole obtained is stable and is in the excited band.The second model order was analysed next.Figure \ref{fig:G2mod1/2} shows the results for the second model order 1/2 and and $n_{i}$=3
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2mod12pzmap.png}
+  \caption{pole-zero map}
+  \label{fig:pzmap G2mod1/2}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[scale=0.38]{G2mod12InOut.png}
+  \caption{Measured and Estimated outputs}
+  \label{fig:inoutG21/2}
+\end{subfigure}
+\caption{Results $G_{2}$ Identification with a model order of 1/2 $n_{i}$=3 }
+\label{fig:G2mod1/2}
+\end{figure}
+
+\noindent
+From figure \ref{fig:inoutG21/2} we can see that we have a good fit.We can see that the fit is good from the beginning of the month.This is because the transient was also estimated.From figure \ref{fig:pzmap G2mod1/2} we can see that the poles obtained are stable and are in the excited band.The third model order was analysed next.Figure \ref{fig:G2mod2/3} shows the results for the third model order 2/3 and $n_{i}$=4
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2mod23pzmap.png}
+  \caption{pole-zero map}
+  \label{fig:pzmap G2mod2/3}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[scale=0.38]{G2mod23InOut.png}
+  \caption{Measured and Estimated outputs}
+  \label{fig:inoutG22/3}
+\end{subfigure}
+\caption{Results $G_{2}$ Identification with a model order of 2/3 and $n_{i}$=4 }
+\label{fig:G2mod2/3}
+\end{figure}
+
+\noindent
+From figure \ref{fig:inoutG22/3} we can see that the fit is as good as with the 1/2 model.From figure \ref{fig:pzmap G2mod2/3} we can see that there is a pole/zero cancellation.This indicates that the perfect fit has been reached and further increasing the model order will not improve the fit.The final model order chosen was the 1/2 model as it had a good  output prediction fit and had stable poles.
+
+The second step was to do a cross validation check with new data set to validate the model obtained.Two  experiments were carried out, a first simulation with one day of data and a second one with one month of data .The heater power was set to zero in  EnergyPlus. Figure \ref{fig:G2onedayValidation10/07}shows the results of the model validation for one day of data.The simulation was done on the 10th of July with as input the dry bulb temperature of the 10th of July obtained from the weather file..No transient term with data set from the month of July was estimated.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{G2_10_07.png}
+    \centering
+    \caption{$G_{2}$ validation model 10th of July  Result}
+    \label{fig:G2onedayValidation10/07}
+\end{figure}
+
+\noindent
+From  figure \ref{fig:G2onedayValidation10/07} we can see that the fit is acceptable.The model obtained with data from the month of February is able to follow the dynamics with data from the month of July.The second experiment was  done on the month of October with input the dry bulb temperature of the month of October obtained from the weather file. Figure \ref{fig:G2oneMONTHValidation} shows the results obtained.No transient term with data set from the month of October was estimated.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{G2_val_OCT.png}
+    \centering
+    \caption{$G_{2}$ validation model month of October Result}
+    \label{fig:G2oneMONTHValidation}
+\end{figure}
+
+From  figure \ref{fig:G2oneMONTHValidation} we can see that the fit is not good.The model obtained with data from the month of February is not able to give a good prediction for all the other months.A $G_{2}$ model has to be estimated for each month.Figure \ref{fig:G2othermonth} shows the results obtained when a  $G_{2}$ model is estimated with data from that month.The transient term was also estimated.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2_Jan.png}
+  \caption{$G_{2}$ model January}
+  \label{fig:G2 Jan}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2_June.png}
+  \caption{$G_{2}$ model June}
+  \label{fig:G2 June}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
+  \centering
+  \includegraphics[scale=0.38]{G2_Oct.png}
+  \caption{$G_{2}$ model October}
+  \label{fig:G2 october}
+\end{subfigure}
+\caption{Results $G_{2}$ with data from that month}
+\label{fig:G2othermonth}
+\end{figure}
+
+\subsection{Parameterization of coefficient of G2 models}
 
 \newpage
 \section{Conclusion}
