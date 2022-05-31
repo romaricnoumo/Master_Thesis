@@ -113,8 +113,23 @@ Using different denominators for the transfer function yielded models with good 
 \setlength{\parindent}{1em}
 
 \section{Introduction}
+Healthy habitats aims at creating healthy indoor environment in our Living and working spaces.The global concern today is to reduce energy consumption.Health and comfort of the occupants should also be addressed.The smart healthy habitats concept is to achieve this two goals that is energy efficiency of the habitat and health and comfort of the residents.This is made possible with systems like Smart ventilation for healthy indoor air, external sun protection for visual and thermal comfort and free and natural cooling.The smart nature of these systems is due to large amount of sensors that learn about the condition of the building and actuators that acts upon it to create an optimal condition.The control actions of the users  not always being effective for the comfort control and energy efficient needs, the efficient control actions are created by control algorithms based on a model of the building.All of these in an automated approach.The aim of this thesis will be the modelling of a building from a system perspective with controllable input as heating, uncontrollable input as weather condition more specifically the dry bulb outside temperature and output as indoor operative temperature that is the thermal behaviour of the building.  
+
+The system model is obtained in a data-driven modelling approach which consists of identifying a mathematical relationship between the input and the output of a system with limited knowledge about the physical behaviour of the system and often called black-box models.The data used is obtained either by measurements or by simulation software.In this thesis the data was obtained through a simulation software.Several simulation tools of buildings and their envelopes are available.They allow for virtual prototyping of realistic buildings and provide simulated data from physical modelling (including building geometry, heat transfer, impact of the sun and wind, ...).The Building Energy Simulation (BES) software that was used is EnergyPlus, an open-source software developed and funded by the U.S. Department of Energy(DOE).A  single-room case-study building, equipped with a heater was set up in EnergyPlus.The two inputs were seperately applied to the case-study building and the output was retrieved.The input-output data is then used to build a model using system Identification techniques in Matlab.Then the model was validated.The validated model will then be used in a future study in Model Predictive Control(MPC) or in reinforcement learning types of control strategies to enable a smart healthy habitat.
+
+Several thermal behaviour modelling of a building are available in the literature.
+
+
+
 \newpage
+
 \section{Heat transfer in Buildings}
+Thermodynamics defines heat as diffuse and chaotic in contrast to energy transmitted as work which is purposeful and organized.Particle physics defines heat as the statistically distributed kinetic energy of atoms and free electrons.Heat is the least noble, most diffuse form of energy to which each nobler form degrades.The temperature reflects the quality of the heat.Higher temperatures require warming up, lower temperatures cooling down of a system. Heat cannot be
+measured directly. It is sensed and because many material properties depend on it, indirectly quantifiable.The SI system advances two temperature scales, one empiric in degrees Celsius, °C,
+with the symbol $\theta$, and one thermodynamic in degrees kelvin, $K$, with the symbol $T$.The three mechanisms of heat transfer are y conduction, convection and radiation.
+
+Conduction refers to the heat exchanged when vibrating atoms collide and free electrons move.It intervenes in solids,liquid and gas.A medium is required between the two bodies and like all heat transfer mechanism the two bodies must have different temperatures.No movement is induced in conduction and always goes in the direction of lower temperatures.Convection happens as a result of motion in  fluids such as air or water wherein temperatures differences exist,included contact with colder or warmer solids.Depending on the cause of movement whether it is an external force, a difference in density or both we will distinguish forced, natural or mixed convection.Convection needs a medium.Radiation, finally, concerns the heat transferred due to the emission and absorption of electromagnetic waves by surfaces. At temperatures above 0 $K$, every surface emits. If two or more are at different temperatures, the result is heat exchange.Radiation does not need a medium.The derivation of the laws governing this heat transfer mechanism can been viewed in appendix.
+
 \newpage
 \section{Building Description}
 \newpage
@@ -968,7 +983,104 @@ From  figure \ref{fig:G2oneMONTHValidation} we can see that the fit is not good.
 \label{fig:G2othermonth}
 \end{figure}
 
-\subsection{Parameterization of coefficient of G2 models}
+\subsection{Parameterization of coefficients of G2 models}
+In the previous section it was seen that a $G_{2}$ model estimated with data from a particular month will not do a good prediction if used to predict the output for a different month.It happens that the poles and zeroes of the models obtained from each month are close.Figure\ref{fig:pzmapmanymonths} shows the pole-zero map for different months.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2_jan_pzmap.png}
+  \caption{$G_{2}$ January pole-zero map}
+  \label{fig:G2_jan_pzmap}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2_apr_pzmap.png}
+  \caption{$G_{2}$ model April pole-zero map}
+  \label{fig:G2_apr_pzmap}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2_aug_pzmap.png}
+  \caption{$G_{2}$ model August pole-zero map}
+  \label{fig:G2_aug_pzmap}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{G2_dec_pzmap.png}
+  \caption{$G_{2}$ model December pole-zero map}
+  \label{fig:G2_dec_pzmap}
+\end{subfigure}
+\caption{pole-zero maps $G_{2}$ with data from the corresponding month}
+\label{fig:pzmapmanymonths}
+\end{figure}
+
+A bode diagram of the 12 months can also be viewed from figure\ref{fig;bodeG2}.We can see that the transfer functions are alike.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{Bode_plot_Jan_Dec.eps}
+    \centering
+    \caption{Bode plot 12 months}
+    \label{fig;bodeG2}
+\end{figure}
+
+
+\subsubsection{Method}
+The method consists of carrying out 12 identification procedures to determine the coefficients $n_{a}$ and $n_{b}$ of $G_{2}$ for each month.Then a quadratic curve is fitted to each of the coefficients by cubic spline interpolation. Cubic spline interpolation is the process of constructing a spline $f:\left[x_{1}, x_{n+1}\right] \rightarrow \mathbb{R}$ which consists of $n$ polynomials of degree three, referred to as $f_{1}$ to $f_{n}$. A spline is a function defined by piecewise polynomials.The  interpolation function traverses all $n+1$ points.The resulting function has the following structure:
+
+$$
+f(x)= \begin{cases}a_{1} x^{3}+b_{1} x^{2}+c_{1} x+d_{1} & \text { if } x \in\left[x_{1}, x_{2}\right] \\ a_{2} x^{3}+b_{2} x^{2}+c_{2} x+d_{2} & \text { if } x \in\left(x_{2}, x_{3}\right] \\ \cdots & \\ a_{n} x^{3}+b_{n} x^{2}+c_{n} x+d_{n} & \text { if } x \in\left(x_{n}, x_{n+1}\right]\end{cases}
+$$
+
+\noindent
+Where $x$ is the index of the month considered and coefficients $a_{i}$, $b_{i}$, $c_{i}$ and $d_{i}$ are to be determined(see appendix for more details).
+
+\subsubsection{Results}
+Figure\ref{fig:fitcurves} shows the fitted curve obtained for each coefficient.The model order is a 1/2 model.The cubic spline interpolation fits nicely the data.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{coeffna2.eps}
+  \caption{coefficient $n_{a_{2}}$}
+  \label{fig:coeffna2}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{coeffna1.eps}
+  \caption{coefficient $n_{a_{1}}$}
+  \label{fig:coeffna1}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{coeffnb1.eps}
+  \caption{coefficient $n_{b_{1}}$}
+  \label{fig:coeffnb1}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{coeffnb0.eps}
+  \caption{coefficient $n_{b_{0}}$}
+  \label{fig:coeffnb0}
+\end{subfigure}
+\caption{coefficient parameterization}
+\label{fig:fitcurves}
+\end{figure}
+
+
+\noindent
+The next step is to compare the results obtained by the Least square estimation and the one obtained by parameterization of the coefficients of the Least square estimation.Figure\ref{fig:valparG2} shows the results obtained for the month of December.We can see that the parameterization of the coefficient yields good results.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{val_par_G2.png}
+    \centering
+    \caption{parameterization coefficient month December}
+    \label{fig:valparG2}
+\end{figure}
+
+\subsection{Simultaneous identification of G1 and G2}
 
 \newpage
 \section{Conclusion}
