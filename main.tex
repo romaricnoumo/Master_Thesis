@@ -107,7 +107,7 @@ Using different denominators for the transfer function yielded models with good 
 
 \tableofcontents
 \newpage
-\listoffigures
+%\listoffigures
 \newpage
 
 \setlength{\parindent}{1em}
@@ -130,8 +130,134 @@ with the symbol $\theta$, and one thermodynamic in degrees kelvin, $K$, with the
 
 Conduction refers to the heat exchanged when vibrating atoms collide and free electrons move.It intervenes in solids,liquid and gas.A medium is required between the two bodies and like all heat transfer mechanism the two bodies must have different temperatures.No movement is induced in conduction and always goes in the direction of lower temperatures.Convection happens as a result of motion in  fluids such as air or water wherein temperatures differences exist,included contact with colder or warmer solids.Depending on the cause of movement whether it is an external force, a difference in density or both we will distinguish forced, natural or mixed convection.Convection needs a medium.Radiation, finally, concerns the heat transferred due to the emission and absorption of electromagnetic waves by surfaces. At temperatures above 0 $K$, every surface emits. If two or more are at different temperatures, the result is heat exchange.Radiation does not need a medium.The derivation of the laws governing this heat transfer mechanism can been viewed in appendix.
 
+Some of the heat transfer processes that can take place in a building are illustrated in fig\ref{fig:heattransfer1} which shows a room on an intermediate floor in a multi-storey building.These heat transfer processes are:
+\begin{enumerate}
+    \item conduction heat transfer through the building fabric elements, including the external
+walls, roof, ceiling and floor slabs and internal partitions;
+    \item solar radiation transmission and conduction through window glazing;
+    \item infiltration of outdoor air and air from adjoining rooms;
+    \item heat dissipation from the lighting, equipment, occupants and other materials inside the room; and
+    \item heating or cooling  provided by the HVAC system.
+\end{enumerate}
+
+\begin{figure}[H]
+    \includegraphics[scale=1.3]{heat_transfer.JPG}
+    \centering
+    \caption{Heat transfer processes involved in a building}
+    \label{fig:heattransfer1}
+\end{figure}
+
+The conduction heat transfer through an opaque building fabric element, such as an external
+wall as shown in Figure\ref{fig:heattransfer2}.This heat transfer is the effect of the convective heat that the surface at each side of the element is exchanging with the surrounding air and the radiant heat exchanges with other surfaces that the surface is exposed to. For an external wall or a roof, the radiant heat exchange at the external side includes the absorbed solar radiation.
+
+\begin{figure}[H]
+    \includegraphics[scale=0.8]{heat_transfer2.JPG}
+    \centering
+    \caption{Heat transfer at an external wall}
+    \label{fig:heattransfer2}
+\end{figure}
+
+The heat transfer through a window is shown in Figure\ref{fig:heattransfer3}.The window glass will transmit part of the incident solar radiation into the indoor space. While the solar radiation penetrates the glass pane, some of the energy will be absorbed by the glass, leading to an increase in the glass temperature, which, in turn, will cause heat to flow in both the indoor and the outdoor directions, first by conduction within the glass and then by convection and radiation at the surfaces at both sides.
+
+\begin{figure}[H]
+    \includegraphics[scale=0.8]{heat_transfer3.JPG}
+    \centering
+    \caption{Heat transfer at a window glass pane}
+    \label{fig:heattransfer3}
+\end{figure}
+
+Several models of heat transfer in a building are available.White box models are used by BES and are physically based models that rely on the understanding of the underlying processes to model and solve a set of heat transfer equations.Grey-box model uses both physical insights coupled with measurements data to complete the model.A popular grey-box model is the thermal network model, an electrical analogy of the dynamics of a building.Thermal resistance is modelled as resistors and
+thermal capacitance as capacitors. The resulting model is a circuit where the temperature is used as the driving potential, and the flow through the circuit is the heat    flow.Fig\ref{fig:thermalmodel} shows the electrical circuit equivalent  of the thermal network model.
+
+
+\begin{figure}[H]
+    \includegraphics[scale=0.5]{thermal.JPG}
+    \centering
+    \caption{Electrical circuit equivalent  of the thermal network model}
+    \label{fig:thermalmodel}
+\end{figure}
+
+\noindent
+The model consists of two states $T_{b}$ and $T_{w}$, which correspond to the interior temperature of the building and the wall temperature respectively.Wall temperature is measured on the inner surface of the wall. For each state there is an associated capacitance,$C_{b}$ and $C_{w}$. These capacitances represent the building’s ability to store thermal energy in the interior and the building envelope, e.g.walls, floor and ceiling. The remaining three model components are resistances. $R_{b}$ represents the thermal resistance between the building interior and the wall. $R_{w}$ is the resistance to heat flow through the wall, i.e. between the state $T_{w}$ and the outside temperature. The third resistance $R_{g}$ represents the resistance to heat flow through the parts of the building envelope that are not included in the state $T_{w}$, such as windows and the door. The driving forces of the system are $\dot{Q}$ and $T_{\infty}$, where $\dot{Q}$ is a heat flow source, e.g. a heater and the outside temperature is modelled as a potential source $T_{\infty}$. Black-box models are the models we are aiming at obtaining in this thesis.
+
 \newpage
 \section{Building Description}
+In this chapter the description of the building at study and to be set up in EnergyPlus will be given as well as a brief description of EnergyPlus with some of its features and parameters.
+
+EnergyPlus is a freeware fully integrated building and HVAC simulation program  use to model both energy consumption for heating, cooling, ventilation, lighting and plug and process loads and water use in buildings.Some of the notable features and capabilities of EnergyPlus include:
+\begin{itemize}
+  \item Combined heat and mass transfer model that accounts for air movement between zones;
+  \item Illuminance and glare calculations for reporting visual comfort and driving lighting controls.
+  \item A large number of built-in HVAC and lighting control strategies and an extensible runtime scripting system for user-defined control.
+\end{itemize}
+
+\noindent
+EnergyPlus uses a white-box model approach to predict the outputs based on specific inputs.Simulation was preferred to experimentation because it is much less expensive and less time consuming.The computation of the output is accurate provided the building description correctly done.Accuracy of the output requires to have all the properties of the building needed by the simulator which is not always easy to have.The simulation can be time consuming and is not suitable for real-time control and as such a black-box model which is less complex is preferred for prediction.Some of the parameters that were taken into account to obtain data for the system model estimation are:
+
+\subsection{Weather conditions}
+The weather conditions are the outdoor components that affect the building and are considered as inputs to the simulator.The weather data used by EnergyPlus is stored in an epw file.The file contains hourly values of data such as solar radiation, humidity, outdoor temperature, wind speed for a Typical Meteorological year or an Actual year.Several weather data for different locations are available and included in standard install of EnergyPlus. 
+
+\subsection{Case study building}
+In EnergyPlus, a building is made of one or multiple zones. A zone does not specifically describe a single room but can also describe a set of rooms that are subject to the same thermal conditions. A zone is thus a thermal rather than a geometrical concept.A zone is  made of several surfaces that define the geometry. air volume.A construction (wall, floor,..) is then built on each surface where each construction is made of a slab of different materials (concrete, wood,..).Fig\ref{fig:building} shows a model of the case study building that was set up in EnergyPlus for simulation.The building is rectangular and made of a single room and a single
+window. The window is oriented towards the South.
+
+
+\begin{figure}[H]
+    \includegraphics[scale=1.5]{building.JPG}
+    \centering
+    \caption{3D model of the case study building}
+    \label{fig:building}
+\end{figure}
+
+\noindent
+The building is 14.08 meters long, 5.55 meters wide and 3.60 meters high as shown in figure\ref{fig:building}.The window has a height of 2.36m and a width of 2.77m. The dimensions of the building are summarized in Table\ref{table:building}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline \text { Building dimension } & \text { Value }\\
+\hline \text { Length } & 14.08 m\\
+\hline \text { Width } & 5.55 m\\
+\hline \text { Height } & 3.60 m\\
+\hline \text { Volume } & 281.32 m^{3}\\
+\hline \text { Floor area } & 78.14 m^{2}\\
+\hline
+\end{tabular}
+\caption{Dimensions of case study building}
+\label{table:building}
+\end{table}
+
+\noindent
+Concerning the materials, walls, windows, floors and ceilings are made of several layers of different materials and thickness, that will be listed from the outside layer to the inside layer. Walls are made of a 9cm thick concrete layer,followed by a 6cm thick mineral wool layer, a 14cm concrete layer and a 12cm Multipor (insulation material) layer. The ceiling is made of a 2.5cm Fermacell (gypsum) layer, followed by a 4cm Polyurethane layer and a 20cm concrete layer.
+The floor is made of a 18cm concrete layer, followed by a 4cm insulation layer, a 6cm concrete layer and a 4mm floor covering layer. The window is made of a 6mm clear float glass sheet,followed by a 15mm of Argon layer and again a 6mm clear float glass sheet.
+
+\subsection{Time Step }
+Specifies the  time step for the simulation calculations.The value entered here is the number of time steps to use within an hour. Longer length time steps have lower values for Number of time steps per Hour. For example a value of 6 entered here directs the program to use a zone time step of 10 minutes.The choice of the time step has important implications for modeling accuracy and the overall time it takes to run a simulation.The time step should be evenly divisible into 60.The choice made was a time step of 10 minutes for the simulations because it was the shortest time step that guaranteed accurate results.The time step is by default the sampling period $T_{s}$ of the input and output.
+
+\subsection{Electric Equipment}
+The building is equipped with an electric heater whose behaviour is modelled by the Electric Equipment object in EnergyPlus.The difference between an Electric Equipment and HVAC system is that it is possible to choose manually the value of the power delivered by the Electric Equipment
+whereas with the HVAC, it is not possible for the user to act on its delivered power but only on the temperature set points of the thermostat.In addition, the thermostat already implements an internal control scheme (on/off) while the final goal is to implement a more advanced controller.The properties of the electric heater are given in Table\ref{table:Heater}.A radiant fraction of 0.5 corresponds to a single column heater. It is assumed that there isn’t any heat, produced by the heater, that is lost towards the outside of the building.The convective fraction is expressed as $F_{\text {convective }}=1-\left(F_{\text {latent }}+F_{\text {radiant }}+F_{\text {lost }}\right)$ and equals 0.5 where $F$ stands for fraction.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline \text { Property } & \text { Value }\\
+\hline \text { Max Power } & 14.08 m\\
+\hline \text { Latent fraction  } & 5.55 m\\
+\hline \text { Radiant fraction  } & 3.60 m\\
+\hline \text { Lost fraction } & 281.32 m^{3}\\
+\hline \text { Convective fraction  } & 78.14 m^{2}\\
+\hline
+\end{tabular}
+\caption{Properties of the Heater}
+\label{table:Heater}
+\end{table}
+
+\subsection{Infiltration and Ventilation}
+Infiltration and ventilation are two different types of sources of flow of air in a
+building.Infiltration is the unintentional or accidental introduction of outside air into a building, typically through cracks in the building envelope and through use of doors for passage.It is sometimes called air leakage. In contrast,ventilation is a flow of air that is intentional.Ventilation can be either natural, by opening a window for example, or forced due to an HVAC system.Infiltration and ventilation have been taken into account in the building. However, no forced ventilation is considered, only natural ventilation, since the building is not equipped with fans or HVAC system.Typical values of a building the size of our case study building are  an infiltration rate of 0.0156 $m^{3}/s$ and a natural ventilation rate of 0.0391 $m^{3}/s$
+
+
 \newpage
 \section{System Identification}
 In this section some notions of system theory and identification used in this thesis are recalled.Firstly the definition of  what are Linear Time-Invariant (LTI) systems and their models.Then Models with non-linearity will be discussed afterwards we will discuss Transfer function estimation , model validation and stability. 
