@@ -117,7 +117,16 @@ Healthy habitats aims at creating healthy indoor environment in our Living and w
 
 The system model is obtained in a data-driven modelling approach which consists of identifying a mathematical relationship between the input and the output of a system with limited knowledge about the physical behaviour of the system and often called black-box models.The data used is obtained either by measurements or by simulation software.In this thesis the data was obtained through a simulation software.Several simulation tools of buildings and their envelopes are available.They allow for virtual prototyping of realistic buildings and provide simulated data from physical modelling (including building geometry, heat transfer, impact of the sun and wind, ...).The Building Energy Simulation (BES) software that was used is EnergyPlus, an open-source software developed and funded by the U.S. Department of Energy(DOE).A  single-room case-study building, equipped with a heater was set up in EnergyPlus.The two inputs were seperately applied to the case-study building and the output was retrieved.The input-output data is then used to build a model using system Identification techniques in Matlab.Then the model was validated.The validated model will then be used in a future study in Model Predictive Control(MPC) or in reinforcement learning types of control strategies to enable a smart healthy habitat.
 
-Several thermal behaviour modelling of a building are available in the literature.
+Several thermal behaviour modelling of a building are available in the literature.Francesco $et\; al.$  compared  three data driven models for short-term thermal behaviour prediction in a real building.The case study building is representative of most of the buildings of the tertiary sector (e.g. offices and schools) built in Italy in the 60s–70s of the 20th century.The considered building models were: three lumped element greybox models of first, second and third order, an AutoRegressive model with eXogenous inputs (ARX) and a Nonlinear AutoRegressive network with eXogenous inputs (NARX). The models identification was performed by means of real measured data.Indeed, the parameters of the models were identified through measures of:indoor and outdoor air temperature, thermal and electrical load power and global horizontal irradiance.The models showed good accuracy in predicting short term behaviour both in winter and summer at the three time horizons considered(15 min, 1 h and 3 h) and with a Root-Mean-Square Error (RMSE) of less than $1^{\circ} C$.
+
+Mustafaraj $et\; al.$ studied Thermal behaviour model identification for an office space
+using a building management system data.In particular, linear Box–Jenkins, output-error and non-linear neural network autoregressive NARX models were investigated to predict the thermal behaviour of an office positioned in a modern commercial building.External and internal climate data recorded over a summer season were used to build and validate the models. The paper exploited the potential of using linear and non-linear models to predict room temperature at different time scale ahead (5 min or 4 h ahead). The prediction performance was evaluated using the criteria of goodness of fit, errors and mean-squared error between predicted model output and real measurements. The results demonstrated that all models provided reasonably good predictions but non-linear models outperformed linear models.
+
+Mustafaraj $et\; al.$ made another study on non-linear thermal behaviour models using artificial neural networks in  an open office.The study investigated a neural network-based non-linear autoregressive model with external inputs (NNARX), a non-linear autoregressive moving average model with external inputs (NNARMAX), and a non-linear output error model (NNOE) to predict the thermal behaviour of an open-plan office in a modern commercial building with data obtained from a building management system.The paper illustrated the potential of using the models to predict
+room temperature and relative humidity for different time scales ahead (30 min or 2 h
+ahead).To obtain an optimal network structure (avoiding overfitting) after training, a pruning algorithm called optimal brain surgeon (OBS) was used to remove unnecessary input signals, weights and hidden neurons.The results demonstrated that all models provided reasonably good predictions but the NNARX and NNARMAX models outperformed the NNOE model. The models could all potentially be used for improving the performance of thermal environment control systems.
+
+The remainder of the thesis is organized as follows:Chapter 2 describes heat transfer processes in a building and outlines some of the models sometime used in modelling the thermal behaviour of buildings;Chapter 3 gives a description of the Building Energy Simulation (BES) software used to obtained the input-output data for the system model identification and some of its features and parameters; Chapter 4 details the background  theory necessary to derive the model; Chapter 5 discusses  the Methods used to obtain the models and shows the results of the identification procedure; finally, Chapter 6 summarizes the conclusions of the work. 
 
 
 
@@ -242,11 +251,11 @@ whereas with the HVAC, it is not possible for the user to act on its delivered p
 \centering
 \begin{tabular}{|c|c|c|}
 \hline \text { Property } & \text { Value }\\
-\hline \text { Max Power } & 14.08 m\\
-\hline \text { Latent fraction  } & 5.55 m\\
-\hline \text { Radiant fraction  } & 3.60 m\\
-\hline \text { Lost fraction } & 281.32 m^{3}\\
-\hline \text { Convective fraction  } & 78.14 m^{2}\\
+\hline \text { Max Power } & 5000 W\\
+\hline \text { Latent fraction  } & 0\\
+\hline \text { Radiant fraction  } & 0.5\\
+\hline \text { Lost fraction } & 0\\
+\hline \text { Convective fraction  } & 0.5\\
 \hline
 \end{tabular}
 \caption{Properties of the Heater}
@@ -500,7 +509,7 @@ This section deals with details of the various methods as well as the results ob
 
 \begin{gather}
 Y(k)=G_{1}\left(\Omega_{k}, \theta\right) U_{1}(k)+G_{2}\left(\Omega_{k}\theta\right) U_{2}(k)+T_{G}\left(\Omega_{k}, \theta\right) \label{eq:matrix form}\\
-Y=\mathbf{G}U + T
+Y=\mathbf{G}U + T \label{eq:matrix form2}
 \end{gather}
 
 \noindent
@@ -511,7 +520,7 @@ Where $ U_{1}(k)$ and $ U_{2}(k)$ are the DFT of the heater input and Dry bulb t
  $\begin{bmatrix}
   U_{1}\\ 
   U_{2}
-\end{bmatrix}$, $Y$, $U_{1}$ and $U_{2}$ $\in \mathrm{R}^{1 \times N}$. N the number of data samples.
+\end{bmatrix}$, $Y$, $U_{1}$ and $U_{2}$ $\in \mathrm{R}^{1 \times N}$. N the number of data samples and $\mathbf{G}=$ called a frequency response matrix (FRM)
 
 Using the Building defined in EnergyPlus, the system is simulated.We have two inputs, one controllalable that we can design and another one uncontrollable.These two inputs are taken into account by EnergyPlus and the operative temperature is computed by the software.Then using the output from EnergyPlus we can carryout the Identification procedures using Matlab to obtain our models.Fig shows a schematic of the procedure.
 
@@ -1207,6 +1216,29 @@ The next step is to compare the results obtained by the Least square estimation 
 \end{figure}
 
 \subsection{Simultaneous identification of G1 and G2}
+At this stage we were able to estimate separately the models $G_{1}$ and $G_{2}$. Since we assumed the system to be a LTI system, the combined responses of $G_{1}$ and $G_{2}$ to inputs $u_{1}$ and $u_{2}$, where $u_{1}$ and $u_{2}$ are the heater power and dry bulb temperature respectively should be equivalent to applying those two inputs to a global system model $G$ representing the model of the thermal behaviour of the building.Fig.\ref{fig;heatDrycombJan} and 
+Fig.\ref{fig;heatDrycombApr} illustrates the results of two simulations on January and April done with $u_{1}$ a sine wave of RMS value of 3kW and $u_{2}$ the corresponding dry bulb temperature on the weather file.We can compare the results obtained from EnergyPlus ($G$) with the predicted output from  models $G_{1}$ and $G_{2}$.
+
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{heatDrycombJan.png}
+    \centering
+    \caption{simuation with $u_{1}$ and $u_{2}$  month of January}
+    \label{fig;heatDrycombJan}
+\end{figure}
+\begin{figure}[H]
+    \includegraphics[width=\textwidth]{heatDrycombApr.png}
+    \centering
+    \caption{simuation with $u_{1}$ and $u_{2}$  month of April}
+    \label{fig;heatDrycombApr}
+\end{figure}
+
+It can be seen from Fig.\ref{fig;heatDrycombJan} and Fig.\ref{fig;heatDrycombApr} that we have a good fit of the measured and predicted outputs. The RMSE for the two results is equally less than $1^{\circ} C$. We obtained values of $0.4^{\circ} C$ for the month of January and $0.3^{\circ} C$
+for the month of April.The next issue that was investigated was the simultaneous estimation of $G_{1}$ and $G_{2}$ which is equivalent to estimating the frequency response matrix (FRM) as shown in \ref{eq:matrix form2}.
+
+\subsubsection{Excitation design}
+
+
+
 
 \newpage
 \section{Conclusion}
