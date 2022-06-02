@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,12pt]{report}
 \usepackage[english]{babel}
 \usepackage{graphicx}
 \graphicspath{ {figures/} }
@@ -23,6 +23,7 @@
 \usepackage{color}
 \usepackage{listings}
 \usepackage{parskip}
+\usepackage{pdfpages}
 \usepackage[framed,numbered,autolinebreaks, useliterate]{mcode}
 \lstset{language=Matlab}%
 \renewcommand{\familydefault}{\sfdefault}
@@ -31,65 +32,15 @@
 \begin{document}
 
 \begin{titlepage}
-
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for the horizontal lines, change thickness here
-
-\center % Center everything on the page
- 
-%----------------------------------------------------------------------------------------
-%	HEADING SECTIONS
-%----------------------------------------------------------------------------------------
-
-\begin{figure}[h]
-    \includegraphics[scale=0.5]{logos_bruface.pdf}\\[1cm] 
-\end{figure}
-
-%\textsc{\LARGE Brussels faculty of Engineering}\\[1.5cm] % Name of your university/college
-\vspace{1cm}
-%\textsc{\Large MEMO-H503 }\\[0.5cm] % Major heading such as course name
-\vspace{0.5cm}
-\textsc{\large Master Thesis in Electrical Engineering}\\[0.5cm] % Minor heading such as course
-%title
-\textsc{\large Romaric Noumo}\\[0.5cm]
-
-
-\HRule \\[0.5cm]
-{ \huge \bfseries MISO data driven modelling of the temperature of a Building}\\[0.4cm] % Title of your document
-\HRule \\[1.5cm]
- 
-%\hspace{-1.5cm}
-%\begin{minipage}{1\textwidth}
-
-%\begin{flushleft} \large
-%\emph{Author:}\\
-%Romaric\textsc{ Noumo}  \\
-%\end{flushleft}
-%\end{minipage}
-
-%\hspace{1cm}
-\begin{minipage}{1\textwidth}
-\begin{flushright} \large
-\emph{Master	thesis	submitted	under	the	supervision	of:} \\
-Prof. John \textsc{Lataire} \\
-\vspace{1cm}
-\emph{The	co-supervision	of:} \\
-Prof. Valéry-Ann\textsc{ Jacobs} \\
-\vspace{1cm}
-\emph{In	order	to	be	awarded the	
-Master’s	Degree	in Electrical Engineering	} \\
-\end{flushright}
-\end{minipage}\\[2cm]
-
-
-
-
-\vfill
-{\large 2021-2022}\\[2cm] % Date, change the \today to a set date if you want to be precise
+\includepdf[page=1,fitpaper]{BrufaceTitlepage2021}
 
 \end{titlepage}
 
 %----------------------------------------------------------------------------------------
 %\clearpage
+
+\includepdf[pages=1]{memoireautorisation1}
+
 \newpage
 
 \begin{abstract}
@@ -111,8 +62,7 @@ Using different denominators for the transfer function yielded models with good 
 \newpage
 
 \setlength{\parindent}{1em}
-
-\section{Introduction}
+\chapter{Introduction}
 Healthy habitats aims at creating healthy indoor environment in our Living and working spaces.The global concern today is to reduce energy consumption.Health and comfort of the occupants should also be addressed.The smart healthy habitats concept is to achieve this two goals that is energy efficiency of the habitat and health and comfort of the residents.This is made possible with systems like Smart ventilation for healthy indoor air, external sun protection for visual and thermal comfort and free and natural cooling.The smart nature of these systems is due to large amount of sensors that learn about the condition of the building and actuators that acts upon it to create an optimal condition.The control actions of the users  not always being effective for the comfort control and energy efficient needs, the efficient control actions are created by control algorithms based on a model of the building.All of these in an automated approach.The aim of this thesis will be the modelling of a building from a system perspective with controllable input as heating, uncontrollable input as weather condition more specifically the dry bulb outside temperature and output as indoor operative temperature that is the thermal behaviour of the building.  
 
 The system model is obtained in a data-driven modelling approach which consists of identifying a mathematical relationship between the input and the output of a system with limited knowledge about the physical behaviour of the system and often called black-box models.The data used is obtained either by measurements or by simulation software.In this thesis the data was obtained through a simulation software.Several simulation tools of buildings and their envelopes are available.They allow for virtual prototyping of realistic buildings and provide simulated data from physical modelling (including building geometry, heat transfer, impact of the sun and wind, ...).The Building Energy Simulation (BES) software that was used is EnergyPlus, an open-source software developed and funded by the U.S. Department of Energy(DOE).A  single-room case-study building, equipped with a heater was set up in EnergyPlus.The two inputs were seperately applied to the case-study building and the output was retrieved.The input-output data is then used to build a model using system Identification techniques in Matlab.Then the model was validated.The validated model will then be used in a future study in Model Predictive Control(MPC) or in reinforcement learning types of control strategies to enable a smart healthy habitat.
@@ -131,8 +81,7 @@ The remainder of the thesis is organized as follows:Chapter 2 describes heat tra
 
 
 \newpage
-
-\section{Heat transfer in Buildings}
+\chapter{Heat transfer in Buildings}
 Thermodynamics defines heat as diffuse and chaotic in contrast to energy transmitted as work which is purposeful and organized.Particle physics defines heat as the statistically distributed kinetic energy of atoms and free electrons.Heat is the least noble, most diffuse form of energy to which each nobler form degrades.The temperature reflects the quality of the heat.Higher temperatures require warming up, lower temperatures cooling down of a system. Heat cannot be
 measured directly. It is sensed and because many material properties depend on it, indirectly quantifiable.The SI system advances two temperature scales, one empiric in degrees Celsius, °C,
 with the symbol $\theta$, and one thermodynamic in degrees kelvin, $K$, with the symbol $T$.The three mechanisms of heat transfer are y conduction, convection and radiation.
@@ -160,7 +109,7 @@ The conduction heat transfer through an opaque building fabric element, such as 
 wall as shown in Figure\ref{fig:heattransfer2}.This heat transfer is the effect of the convective heat that the surface at each side of the element is exchanging with the surrounding air and the radiant heat exchanges with other surfaces that the surface is exposed to. For an external wall or a roof, the radiant heat exchange at the external side includes the absorbed solar radiation.
 
 \begin{figure}[H]
-    \includegraphics[scale=0.8]{heat_transfer2.JPG}
+    \includegraphics[scale=1]{heat_transfer2.JPG}
     \centering
     \caption{Heat transfer at an external wall}
     \label{fig:heattransfer2}
@@ -169,7 +118,7 @@ wall as shown in Figure\ref{fig:heattransfer2}.This heat transfer is the effect 
 The heat transfer through a window is shown in Figure\ref{fig:heattransfer3}.The window glass will transmit part of the incident solar radiation into the indoor space. While the solar radiation penetrates the glass pane, some of the energy will be absorbed by the glass, leading to an increase in the glass temperature, which, in turn, will cause heat to flow in both the indoor and the outdoor directions, first by conduction within the glass and then by convection and radiation at the surfaces at both sides.
 
 \begin{figure}[H]
-    \includegraphics[scale=0.8]{heat_transfer3.JPG}
+    \includegraphics[scale=1]{heat_transfer3.JPG}
     \centering
     \caption{Heat transfer at a window glass pane}
     \label{fig:heattransfer3}
@@ -190,7 +139,7 @@ thermal capacitance as capacitors. The resulting model is a circuit where the te
 The model consists of two states $T_{b}$ and $T_{w}$, which correspond to the interior temperature of the building and the wall temperature respectively.Wall temperature is measured on the inner surface of the wall. For each state there is an associated capacitance,$C_{b}$ and $C_{w}$. These capacitances represent the building’s ability to store thermal energy in the interior and the building envelope, e.g.walls, floor and ceiling. The remaining three model components are resistances. $R_{b}$ represents the thermal resistance between the building interior and the wall. $R_{w}$ is the resistance to heat flow through the wall, i.e. between the state $T_{w}$ and the outside temperature. The third resistance $R_{g}$ represents the resistance to heat flow through the parts of the building envelope that are not included in the state $T_{w}$, such as windows and the door. The driving forces of the system are $\dot{Q}$ and $T_{\infty}$, where $\dot{Q}$ is a heat flow source, e.g. a heater and the outside temperature is modelled as a potential source $T_{\infty}$. Black-box models are the models we are aiming at obtaining in this thesis.
 
 \newpage
-\section{Building Description}
+\chapter{Building Description}
 In this chapter the description of the building at study and to be set up in EnergyPlus will be given as well as a brief description of EnergyPlus with some of its features and parameters.
 
 EnergyPlus is a freeware fully integrated building and HVAC simulation program  use to model both energy consumption for heating, cooling, ventilation, lighting and plug and process loads and water use in buildings.Some of the notable features and capabilities of EnergyPlus include:
@@ -203,10 +152,10 @@ EnergyPlus is a freeware fully integrated building and HVAC simulation program  
 \noindent
 EnergyPlus uses a white-box model approach to predict the outputs based on specific inputs.Simulation was preferred to experimentation because it is much less expensive and less time consuming.The computation of the output is accurate provided the building description correctly done.Accuracy of the output requires to have all the properties of the building needed by the simulator which is not always easy to have.The simulation can be time consuming and is not suitable for real-time control and as such a black-box model which is less complex is preferred for prediction.Some of the parameters that were taken into account to obtain data for the system model estimation are:
 
-\subsection{Weather conditions}
+\section{Weather conditions}
 The weather conditions are the outdoor components that affect the building and are considered as inputs to the simulator.The weather data used by EnergyPlus is stored in an epw file.The file contains hourly values of data such as solar radiation, humidity, outdoor temperature, wind speed for a Typical Meteorological year or an Actual year.Several weather data for different locations are available and included in standard install of EnergyPlus. 
 
-\subsection{Case study building}
+\section{Case study building}
 In EnergyPlus, a building is made of one or multiple zones. A zone does not specifically describe a single room but can also describe a set of rooms that are subject to the same thermal conditions. A zone is thus a thermal rather than a geometrical concept.A zone is  made of several surfaces that define the geometry. air volume.A construction (wall, floor,..) is then built on each surface where each construction is made of a slab of different materials (concrete, wood,..).Fig\ref{fig:building} shows a model of the case study building that was set up in EnergyPlus for simulation.The building is rectangular and made of a single room and a single
 window. The window is oriented towards the South.
 
@@ -228,8 +177,8 @@ The building is 14.08 meters long, 5.55 meters wide and 3.60 meters high as show
 \hline \text { Length } & 14.08 m\\
 \hline \text { Width } & 5.55 m\\
 \hline \text { Height } & 3.60 m\\
-\hline \text { Volume } & 281.32 m^{3}\\
-\hline \text { Floor area } & 78.14 m^{2}\\
+\hline \text { Volume } & 281.32 m$^{3}$\\
+\hline \text { Floor area } & 78.14 m$^{2}$\\
 \hline
 \end{tabular}
 \caption{Dimensions of case study building}
@@ -240,10 +189,10 @@ The building is 14.08 meters long, 5.55 meters wide and 3.60 meters high as show
 Concerning the materials, walls, windows, floors and ceilings are made of several layers of different materials and thickness, that will be listed from the outside layer to the inside layer. Walls are made of a 9cm thick concrete layer,followed by a 6cm thick mineral wool layer, a 14cm concrete layer and a 12cm Multipor (insulation material) layer. The ceiling is made of a 2.5cm Fermacell (gypsum) layer, followed by a 4cm Polyurethane layer and a 20cm concrete layer.
 The floor is made of a 18cm concrete layer, followed by a 4cm insulation layer, a 6cm concrete layer and a 4mm floor covering layer. The window is made of a 6mm clear float glass sheet,followed by a 15mm of Argon layer and again a 6mm clear float glass sheet.
 
-\subsection{Time Step }
+\section{Time Step }
 Specifies the  time step for the simulation calculations.The value entered here is the number of time steps to use within an hour. Longer length time steps have lower values for Number of time steps per Hour. For example a value of 6 entered here directs the program to use a zone time step of 10 minutes.The choice of the time step has important implications for modeling accuracy and the overall time it takes to run a simulation.The time step should be evenly divisible into 60.The choice made was a time step of 10 minutes for the simulations because it was the shortest time step that guaranteed accurate results.The time step is by default the sampling period $T_{s}$ of the input and output.
 
-\subsection{Electric Equipment}
+\section{Electric Equipment}
 The building is equipped with an electric heater whose behaviour is modelled by the Electric Equipment object in EnergyPlus.The difference between an Electric Equipment and HVAC system is that it is possible to choose manually the value of the power delivered by the Electric Equipment
 whereas with the HVAC, it is not possible for the user to act on its delivered power but only on the temperature set points of the thermostat.In addition, the thermostat already implements an internal control scheme (on/off) while the final goal is to implement a more advanced controller.The properties of the electric heater are given in Table\ref{table:Heater}.A radiant fraction of 0.5 corresponds to a single column heater. It is assumed that there isn’t any heat, produced by the heater, that is lost towards the outside of the building.The convective fraction is expressed as $F_{\text {convective }}=1-\left(F_{\text {latent }}+F_{\text {radiant }}+F_{\text {lost }}\right)$ and equals 0.5 where $F$ stands for fraction.
 
@@ -262,16 +211,16 @@ whereas with the HVAC, it is not possible for the user to act on its delivered p
 \label{table:Heater}
 \end{table}
 
-\subsection{Infiltration and Ventilation}
+\section{Infiltration and Ventilation}
 Infiltration and ventilation are two different types of sources of flow of air in a
 building.Infiltration is the unintentional or accidental introduction of outside air into a building, typically through cracks in the building envelope and through use of doors for passage.It is sometimes called air leakage. In contrast,ventilation is a flow of air that is intentional.Ventilation can be either natural, by opening a window for example, or forced due to an HVAC system.Infiltration and ventilation have been taken into account in the building. However, no forced ventilation is considered, only natural ventilation, since the building is not equipped with fans or HVAC system.Typical values of a building the size of our case study building are  an infiltration rate of 0.0156 $m^{3}/s$ and a natural ventilation rate of 0.0391 $m^{3}/s$
 
 
 \newpage
-\section{System Identification}
+\chapter{System Identification}
 In this section some notions of system theory and identification used in this thesis are recalled.Firstly the definition of  what are Linear Time-Invariant (LTI) systems and their models.Then Models with non-linearity will be discussed afterwards we will discuss Transfer function estimation , model validation and stability. 
 
-\subsection{LTI Systems}
+\section{LTI Systems}
 
 The notion of a system is a broad concept.A system operates on an input signal to produce an output signal.The output is an observable signal that is of interest to us.Within the inputs we can distinguish the ones that can be manipulated by the observer from disturbances.The disturbances can be divided into those that are directly measured and those that are only observed through their influence on the output.The distinction between inputs and disturbances is often of less importance in the modelling process.
 
@@ -299,7 +248,7 @@ time-delay on the output.
 
 Causality property is also of interest.A causal system means that the response of the system cannot depend on an excitation in the future.We supposed that our system was a causal LTI system. 
 
-\subsection{Response of LTI Systems}
+\section{Response of LTI Systems}\label{section 4.2}
 Any  continuous-time dynamic system can be described by a differential equation and a discrete-time dynamic system by a difference equation as follows:
 
 
@@ -347,14 +296,33 @@ If we apply an input signal of the form $u(t)=\sin (\omega t+\phi)$, then the ou
 Where A and $\Delta \phi$ are  the amplitude  and phase of the transfer function respectively.By applying a sine to an LTI System we can easily characterize the system.Fig\ref{fig:single sine} shows the result in the time domain of a heater sine wave of RMS value 1.4kW applied to our system.
 
 \begin{figure}[H]
-    \includegraphics[scale=0.7]{single_sine_rms_1400.eps}
+    \includegraphics[width=\textwidth]{single_sine_rms_1400.eps}
     \caption{Response of the system to a sinusoidal heater input of RMS value 1.4kw}
     \label{fig:single sine}
 \end{figure}
 
 We can see from the result that the output to the sine excitation is also a sine wave with no phase shift.For this signal excitation level,the LTI assumption hold true.
 
-\subsection{Nonlinear models}
+Another particular class of excitation is a step input that is a step response. The step response in a given initial state consists of the time behaviour of the outputs of a  system when its inputs changes suddenly in a very short time and can be applied to see both the transient response and steady-state response of the system.Fig.\ref{fig:stepheater} and Fig.\ref{fig:stepDrybulb} shows the step responses from input heater power to output indoor temperature $G_{1}$ and from input dry bulb temperature to output indoor temperature $G_{2}$computed using Matlab. $G_{1}$ and $G_{2}$ are both second order system. 
+
+\begin{figure}[H]
+    \includegraphics[width=10cm, height=6cm]{stepheater.png}
+    \centering
+    \caption{Step response $G_{1}$ }
+    \label{fig:stepheater}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[scale=0.5]{stepdry.png}
+    \centering
+    \caption{Step response $G_{2}$}
+    \label{fig:stepDrybulb}
+\end{figure}
+
+From .Fig.\ref{fig:stepheater} and Fig.\ref{fig:stepDrybulb} the time constants were computed and gave values of approximately 8 hours for  $G_{1}$ and 4 days for $G_{2}$. This shows that the dynamics of $G_{2}$ is much more slower than the dynamics of $G_{2}$.
+
+
+\section{Nonlinear models}
 Since most of the relationships in physics are nonlinear,nearly all systems are inherently nonlinear in nature.In reality the linearity assumption is only approximately valid.Most systems are only linear to a first approximation.Moreover,they are a special case of nonlinear systems in limited ranges of operation.Fig\ref{fig:examplenonlinear} shows some examples of nonlinear relationships.
 
 
@@ -384,32 +352,32 @@ To detect the nonlinearities the idea is to design a multisine  that excites a w
 contributions, it becomes easy to recognize these in an amplitude spectrum plot of the output signal. Fig \ref{fig:MS_1.4},  Fig \ref{fig:MS_2.5} and  Fig \ref{fig:MS_4.0} shows the result of three simulations obtained with different multisine heater  excitation levels.
 
 \begin{figure}[H]
-    \includegraphics[scale=0.6]{fdomain_input_rms_1400.eps}
+    \includegraphics[width=\textwidth]{MS_1.4kw.png}
     \centering
     \caption{Multisine with RMS value of 1.4 kW}
     \label{fig:MS_1.4}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[scale=0.5]{fdomain_input_rms_2500.eps}
+    \includegraphics[width=\textwidth, height=6cm]{MS_2.5kw.png}
     \centering
     \caption{Multisine with RMS value of 2.5 kW}
     \label{fig:MS_2.5}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[scale=0.6]{fdomain_input_rms_4000.eps}
+    \includegraphics[width=\textwidth, height=6cm]{MS_4kw.png}
     \centering
     \caption{Multisine with RMS value of 4 kW}
     \label{fig:MS_4.0}
 \end{figure}
 
-From the reults we can notice that as the excitation level increases the nonlinearities also increases.The system is subject to nonlinearities.The blue contribution is the response of the system to the excited input frequencies ie the Linear response contribution.The green dots correspond to the odd non excited nonlinear contributions.We also notice the appearance of a smooth red contribution at the output.This contribution is due to the transient and even nonlinearities.As long as the the ratio of the level of the nonlinearities to the level of thelinear contribution is proper one can assume the LTI assumption to hold true.
+From the reults we can notice that as the excitation level increases the nonlinearities also increases.The system is subject to nonlinearities.The blue contribution is the response of the system to the excited input frequencies ie the Linear response contribution.The green dots correspond to the odd non excited nonlinear contributions.We also notice the appearance of a smooth red contribution at the output.This contribution is due to the transient and even nonlinearities.As long as the the ratio of the level of the nonlinearities to the level of the linear contribution is proper one can assume the LTI assumption to hold true.
 
 
 
 
-\subsection{System Identification procedure}
+\section{System Identification procedure}
 Identification session consists of a series of basic steps.In each session the following actions should be taken:
 \begin{itemize}
     \item Collect information about the system.
@@ -419,17 +387,17 @@ selection of a goodness of fit criterion.
      \item Validate the selected model.
 \end{itemize}
 
-\subsubsection{Information collection}
+\subsection{Information collection}
 Building a model requires one should first get information about the system.This can be done by just observing the natural dynamics of the system for example vibration analysis of a bridge that is excited by normal traffic,but most often it is more efficient to set up dedicated experiments that actively excite the system for example like the controlled excitation of a mechanical structure using a shaker.The controlled excitation has to be selected to optimize  goals  for example like minimum time, minimum time, or minimum power consumption of the experiment within operator constraints like the excitation should remain below a maximum allowable level as we saw in previous sections.
 
 Additionally, data pre-processing and pre-filtering  may be necessary as the collected data in its raw form is not usually ready to be used for model development.Aside from noise that affects data quality two other factors like outliers and missing data may have to be dealt with.Outliers is data that do not conform to other parts of the data largely due to sensor malfunction while  missing data which may be due to power disruption,sensor malfunctioning or data transfer losses. 
 
 Handling outliers might be tricky and rely on statistical methods.Nevertheless, if the input excitation signal is periodical and if multiple period measurement are available then we can simply replace the value we suspect to be an outlier with the value from another period.Missing data can be handled by interpolating the value between the two nearest neighbours of the missing one.As for pre-filtering it may be desirable to emphasize fits over a specific frequency range either due to the needs of that application and/or it is known that the noise dominates the measurement outside this band.In either case  filtering the measurements prior to identification may be useful.
 
-\subsubsection{Model Structure Selection}
+\subsection{Model Structure Selection}
 Multiple mathematical models can be used to represent a system.A choice should be made within the wide variety of possibilities such as:
 
-\subsubsection*{ Non-parametric models versus Parametric models }
+\subsection*{ Non-parametric models versus Parametric models }
 The term non-parametric does not imply that the model does not have unknowns or parameters.It implies that the model do not have any mathematical structure for the response of the system.As an example let us consider the step response model of a system, which is simply the set of step response coefficients at the sampling instants.In a Non-parametric model the system is characterized by measurements of a system function at a large number of points If the system is assumed to have first-order characteristics, then the response can be characterized by three parameters, namely, gain,time-constant and time-delay.When the response coefficients are directly estimated, it is termed as non-parametric identification.FRF(Frequency response function) measurement is another example of non-parametric model.Fig shows the impulse response of a system at a large number of points.
 
 \begin{figure}[H]
@@ -462,8 +430,8 @@ where
 \[G(\Omega, \theta)=\frac{B(\Omega, \theta)}{A(\Omega, \theta)}, T_{G}(\Omega, \theta)=\frac{I_{G}(\Omega, \theta)}{A(\Omega, \theta)}, H\left(\Omega_{k}, \theta\right)=\frac{C(\Omega, \theta)}{D(\Omega, \theta)}, T_{H}(\Omega, \theta)=\frac{I_{H}(\Omega, \theta)}{D(\Omega, \theta)}\]
 
 \noindent
-and the numerators and denominators of the expressions polynomials
-\[\Omega_{k}=j\omega_{k}\]
+and the numerators and denominators of the expressions polynomials for a continuous time system
+\[\Omega_{k}= s_k =j\omega_{k}\]
 \[\theta:\;parameters\]
 \[ARX:\; C=1,\; D=A,\; T_{H}=0\]
 \[ARMAX:\; D=A,\; T_{H}=0 \]
@@ -474,15 +442,15 @@ and the numerators and denominators of the expressions polynomials
 
 Non-parametric models can be estimated with minimal a priori knowledge while the estimation of parametric models demands some a priori knowledge.The a priori knowledge needed can be obtained from physical insight of the system.It can also be acquired by first estimating a non-parametric model.
 
-\subsubsection*{ White box models versus black box models }
+\subsection*{ White box models versus black box models }
 White box models are models that require specialized knowledge related to a scientific field.That is the modelling requires understanding of physical laws such as for example Kirchhoff’s and Newton’s laws.The white box model is often used to gain insight into working principles of a system and they are those models that are used in simulation softwares.
 
 Black box models do not require detailed study using physical laws of the system to obtain a model.The model is estimated  using only the observed input and output measurements.Black box models are usually used when only output prediction of the system is needed. 
 
-\subsubsection*{ Linear models versus nonlinear models }
+\subsection*{ Linear models versus nonlinear models }
 Linear system identification framework has seen much more development and is more complete than the nonlinear identification framework that  requires more data and is more involved.In real life almost every system is nonlinear and  can be linearised around an operation region to obtain a linear model which is more simpler to handle.The choice of model depends on if the linear behaviour is dominant or not.
 
-\subsubsection*{ Linear-in-the-parameters versus nonlinear-in-the-parameters }
+\subsection*{ Linear-in-the-parameters versus nonlinear-in-the-parameters }
 A model is called linear-in-the-parameters if there exists a linear relation between these parameters $\theta$ and the error $\epsilon$ that is minimized.
 
 \[\epsilon=y-K(u) \theta\]
@@ -490,30 +458,37 @@ A model is called linear-in-the-parameters if there exists a linear relation bet
 
 Linearity in the parameters has a strong impact on the complexity of the estimators such that the optimization problem that can be solved analytically  otherwise an iterative optimization has to be performed.
 
-\subsubsection{ Estimation}
+\subsection{ Estimation}
 Once a model structure is chosen,the estimation can then be carried out.Using the observed information about the system and the model structure, an optimization problem has to be solved that minimizes a criterion characterizes the point of optimum in the search.
 
 Several estimation method exists and the choice of the optimization criterion determines the stochastic properties of the estimator such as the bias, variance and consistency.An example of estimation method is the Least squares method which has the generic form
 
-\[\min _{\theta}\left\|\mathbf{y}_{N}-\hat{y}(\theta)\right\|_{2}^{2}\]
+\begin{equation}
+\hat{\theta}=\arg  \min _{\theta} V(\theta, Z)
+\end{equation}
+
 
 \noindent
-where $\mathbf{y}_{N}$ is the vector of stacked measurements, $\hat{y}(\theta)$ is the predictor expression resulting from a model and $\theta$ are the vector of model parameters.
+where $V(\theta, Z)$ is a cost function, a  measure of the difference between the modelled output and the measured output, $Z$ the vector of input-output measurements and $\hat{\theta}$ is the parameter vector.
 
-\subsubsection{Model validation}
+\subsection{Model validation}
 The validity of the model obtain should be accessed.We need to know if the model describes well the dynamics of the system.Usually the available data for the modelling exercise is partitioned in 2 data sets.An estimation set and a validation set.Modelling errors are errors due to the model's inability  to predict the  validation data set .There might be several reasons to this.One reason can be over-fitting of the estimation data set thereby equally modelling noise.The choice of the model structure might not be the right one.The estimation data set might not be informative enough and therefore a new data set is required.Non-linear distortions might also be a reason, a new model structure should then be chosen.The Identification framework being iterative,the procedure might be done several times before obtaining a proper model. 
 
+\subsection*{Stability}
+An important characteristics of the model obtained is that it should be stable.It is characterised by if a bounded input is applied to a stable system, the output should also be bounded.For continuous time systems defined by a transfer function, stability is guaranteed if the real parts of the poles of the system are negative that is are on the left side of the s-plane.A quick way to check this in Matlab is by plotting the pole-zero map of the system.
+
+
 \newpage
-\section{Method}
-This section deals with details of the various methods as well as the results obtained using the methods to obtain models.As showed in the previous chapters the dynamics from heater to operative temperature and the one from Dry bulb temperature to operative temperature are not the same.By estimating  a transfer matrix instead of a transfer function one could obtain a better system model.The expression of the input-output relationship will then be as follows:
+\chapter{Method}
+This chapter deals with details of the various methods as well as the results obtained using the methods to obtain models.As showed in the previous chapters the dynamics from heater to operative temperature and the one from Dry bulb temperature to operative temperature are not the same (see \ref{section 4.2} step response).By estimating  a transfer matrix instead of a transfer function one could obtain a better system model.The expression of the input-output relationship will then be as follows:
 
 \begin{gather}
-Y(k)=G_{1}\left(\Omega_{k}, \theta\right) U_{1}(k)+G_{2}\left(\Omega_{k}\theta\right) U_{2}(k)+T_{G}\left(\Omega_{k}, \theta\right) \label{eq:matrix form}\\
+Y(k)=G_{1}\left(s_{k}, \theta\right) U_{1}(k)+G_{2}\left(s_{k}\theta\right) U_{2}(k)+T_{G}\left(s_{k}, \theta\right) \label{eq:matrix form}\\
 Y=\mathbf{G}U + T \label{eq:matrix form2}
 \end{gather}
 
 \noindent
-Where $ U_{1}(k)$ and $ U_{2}(k)$ are the DFT of the heater input and Dry bulb temperature respectively. $Y(k)$ the DFT of the output.$G_{1}$ and $G_{2}$ are the transfer function from heater to operative temperature and the transfer function from dry bulb temperature to operative temperature respectively.$\mathbf{G}=$
+Where $ U_{1}(k)$ and $ U_{2}(k)$ are the DFT of the heater input and Dry bulb temperature respectively. $Y(k)$ the DFT of the output and $T_{G}\left(s_{k}, \theta\right)$ the transient term. $G_{1}$ and $G_{2}$ are the transfer function from heater to operative temperature and the transfer function from dry bulb temperature to operative temperature respectively.$\mathbf{G}=$
  $\begin{bmatrix}
   G_{1} & G_{2}\\ 
 \end{bmatrix}$, $U=$
@@ -522,12 +497,20 @@ Where $ U_{1}(k)$ and $ U_{2}(k)$ are the DFT of the heater input and Dry bulb t
   U_{2}
 \end{bmatrix}$, $Y$, $U_{1}$ and $U_{2}$ $\in \mathrm{R}^{1 \times N}$. N the number of data samples and $\mathbf{G}=$ called a frequency response matrix (FRM)
 
-Using the Building defined in EnergyPlus, the system is simulated.We have two inputs, one controllalable that we can design and another one uncontrollable.These two inputs are taken into account by EnergyPlus and the operative temperature is computed by the software.Then using the output from EnergyPlus we can carryout the Identification procedures using Matlab to obtain our models.Fig shows a schematic of the procedure.
+Using the Building defined in EnergyPlus, the system is simulated.We have two inputs, one controllalable that we can design and another one uncontrollable.These two inputs are taken into account by EnergyPlus and the operative temperature is computed by the software.Then using the output from EnergyPlus we can carryout the Identification procedures using Matlab to obtain our models.Fig.\ref{fig:procedure} shows a schematic of the procedure.
+
+
+\begin{figure}[H]
+    \includegraphics[scale=0.7]{procedure.jpeg}
+    \centering
+    \caption{ schematic of the Identification procedure}
+    \label{fig:procedure}
+\end{figure}
 
 
 From \ref{eq:matrix form} we can see that there is at least two models to estimate $G_{1}$ and $G_{2}$ and as we assumed the system to be an LTI one superposition principle holds true and then we might do the two models identification separately.For each model estimation, we will discuss the excitation design if it is a controllable input, the model structure, the estimation method, results and model validation.
 
-\subsection{Data preprocessing}
+\section{Data preprocessing}
 When the data is collected from the simulation software it is not in shape for immediate use in the identification algorithms.Some operations needs to be done on the data.All the estimated method used in the identification are frequency domain methods.
 
 The first operation is then obviously to transform the data from the time domain to the frequency domain.To do so we apply the  Discrete Fourier Transform (DFT) on the time domain input and output signals:
@@ -573,7 +556,7 @@ where $\lfloor\cdot\rfloor$ is the floor operator: the largest integer no greate
 
 The thermal behaviour of a building being a slow process implies that the main information on the dynamics of the system is the low frequency components and that we should emphasize the modelling on the low frequency components.We therefore can only take into account the first few frequencies of the input-output spectra.The optimal new $M$ is to be obtained by iteration.
 
-\subsection{System Linearization}
+\section{System Linearization}
 As we mentioned earlier systems in practice are nonlinear and are only linear in a limited range of operation.A linearization around a nominal operating point is then necessary.The objective of the linearization  is to derive a linear approximate system whose response will agree closely with that of the original nonlinear system which it comes from. By considering small variations around our nominal operating point($u_{o}$,$y_{o}$)
 
 \begin{equation}
@@ -603,10 +586,19 @@ After linearization the frequency vector becomes:
 \end{aligned}
 \end{equation}
 
-\subsection{Identification of Heater Model G1}
+To reconstruct the predicted output of the model, the response of the model should be brought back to the correct level by adding the offset $y_{o}$ (see Appendix).
+
+$$
+y_{\text { pred }}(t)=G\left\{u(t)-u_{0}\right\}+t^{\circ}(t)+y_{0}
+$$
+\noindent
+where $t^{\circ}(t)$ is the Inverse Discrete Fourier Transform (IDFT) of the transient term.
+
+
+\section{Identification of Heater Model G1}
 To obtain $G_{1}$ we will first obtain a non-parametric model of the system from Heater to operative temperature.This non-parametric model Will then be used to obtain the parametric one $G_{1}$.
 
-\subsubsection{ Excitation design }
+\subsection{ Excitation design }
 When we have a choice in the input signal to be used in the identification, optimization of the excitation signal both in the time domain and frequency domain can be made.Optimizing in the time domain results in a minimum crest factor.The crest factor is defined as
 
 $$
@@ -624,10 +616,10 @@ This results in an improved signal-to-noise(S/N) ratio, hence greater accuracy i
 
 The multisine was chosen as excitation signal.It allows generation of an optimum power spectrum with a minimum crest factor.Additionally the multisine can also be used to detect nonlinear distorsions as discussed earlier.The spectral resolution $f_{o}$ of the multisine should be chosen high enough so that no sharp resonances are missed.Since $f_{0}=1 / T_{s}$ , it sets immediately the period length $T_{s}$ of the multisine. A high-frequency resolution requires a long measurement time because at least one, and preferably a few, periods should be measured.Unfortunately we are limited in the frequency resolution as the $T_{s}$ is limited in EnergyPlus.
 
-\subsubsection{ Model structure }
-The choice of the model depends on the aim of the model.The aim of the model is for control purposes.With regard to this the choice made was a continuous time parametric black-box model.
+\subsection{ Model structure }
+The choice of the model depends on the aim of the model.The aim of the model is for control purposes.With regard to this the choice made was a continuous time parametric Output-Error (OE) black-box model.
 
-\subsubsection{Estimation Method Non-parametric model}
+\subsection{Estimation Method Non-parametric model}
 The Non-parametric model to be determined is a Frequency Response Function (FRF).Using a multisine,  characterization of the nonlinear distortions is also possible and we will describe the Robust method which enables its characterization in the next paragraph.In pratice data is obtained from measurements and noise is present.To obtain the FRF, averaging techniques are often used to reduce FRF measurements errors.Starting from $M$ successive periods of  input-output data blocks $u^{[l]}(t), y^{[l]}(t), \quad l=1,2, \ldots, M$ the inputs and outputs are averaged over those periods to obtain sample mean and sample covariances and the FRF estimate is given as
 
 \begin{equation}
@@ -666,8 +658,7 @@ procedure is summarized in Figure\ref{fig:robust procedure}
 
 $\hat{G}[m, p]$ is the FRF estimate of the $p$th period of the $m$th experiment, which depends on the BLA $G_{BLA}$, the stochastic nonlinear distortions $G_{S}^{[m]}$, and the noise $N_{G}^{[m, p]}$.$ \quad \hat{G}^{[m]}, \hat{\sigma}_{n}^{2[m]}$ are, respectively, the sample mean and sample noise variance over the periods of the $m$th   experiment.$\hat{G}_{\mathrm{BLA}},\hat{\sigma}_{G_{\mathrm{Bl.A}}^{2}}$ are, respectively, the sample mean and sample total variance over the $M$ experiments.Finally, $\hat{\sigma}_{G_{\mathrm{BLA}}}^{2}, n$ is the mean sample noise variance over the $M$ realizations.
 
-\paragraph{Results}
-
+\subsubsection{Results}
 3 realizations of random odd multisines of P=31 periods, N= 144 data points per period with F=14 excited frequencies (Excited band $0-4.10^{-4}\;Hz$/ $0.0025\;rad/s$) and an RMS value for each of 2kW.The Dry Bulb outside temperature was set to zero in the weather file used by EnergyPlus. Then the robust Method was applied to the measurements to determine the BLA, total variance (noise + NLdistorsions) and noise variance.Fig\ref{fig:multisine} and Fig\ref{fig:BLA} shows the multisines and BLA plot respectively.
 
 
@@ -688,7 +679,7 @@ $\hat{G}[m, p]$ is the FRF estimate of the $p$th period of the $m$th experiment,
 From Fig\ref{fig:BLA} we can see the excited lines in black dots.The total variance and noise variance are almost at  the same level. There is a 30dB signal to distorsion level. The variances obtained at this phase are then later on used in the parametric model Identification.A simulation was carried out to predict the output using the Non-parametric model obtained.The Input signal is a Multisine with 3 excited frequencies and RMS value of 2kW.The 3 frequency components are the first 3 bins at which the BLA was estimated.Figure \ref{fig:Npinputoutput} shows the results.
 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{Np_In_oUT.png}
+    \includegraphics[width=\textwidth, height=8cm]{Np_In_oUT.png}
     \centering
     \caption{Non parametric model output Input output prediction}
     \label{fig:Npinputoutput}
@@ -697,11 +688,11 @@ From Fig\ref{fig:BLA} we can see the excited lines in black dots.The total varia
 \noindent
 We can see from figure \ref{fig:Npinputoutput} that the fit is not good but follows pretty well the dynamics of the system.It is a good starting point for the parametric model estimation.
 
-\subsubsection{Estimation method parametric model}
+\subsection{Estimation method parametric model}
 The estimator used to obtain $G_{1}$ is the Maximum Likelihood estimator. Starting from the measured input-output DFT $U(k)$, $Y(k)$ or from a measured frequency response function $G(s_{k})$. The 2F complex-valued vector Z contains the measured
 input-output (DFT) spectra , at a set of F frequencies $s_{k}$, $k = 1, 2, ...,F$
  $$
-Z^{T}=\left[Z^{T}(1) Z^{T}(2) \ldots Z^{T}(F)\right] \text { with } Z^{T}(k)=[Y(k) U(k)]
+Z^{T}=\left[Z^{T}(1)\;\; Z^{T}(2) \ldots Z^{T}(F)\right] \text { with } Z^{T}(k)=[Y(k)\;\; U(k)]
 $$
 \noindent
 we can use the output error, which is the difference between the observed output $Y(k)$ and the modeled output $Y(s_{k},\theta)$ with $\theta$ the parameter vector. For periodic signals,
@@ -777,7 +768,7 @@ $$
 \noindent
 And the new value $\theta^{(i)}=\Delta \theta^{(i)} + \theta^{(i-1)} $.The starting parameter values are obtained by linearization of the original optimization problem and to compute an analytical solution to the linearized form.This will be detailed later when discussing the Linear Least Square Estimator.The stop criterion of the iteration loop is when there is no longer a significant decrease of the cost function with iteration, then the prediction quality will not be further improved by continuing.
 
-\paragraph{Results}
+\subsubsection{Results}
 To identify the parameters of the parametric model the same input-output measurements from the non-parametric model estimation were used.The order of the transfer function was chosen from 3 model orders  by checking the quality of the fit with the non-parametric model and the stability of the model.Once a suitable order provided satisfactory results a series of check were made with new measurements to check if the fit was still of quality.
 
 The blackbox model chosen was an Output-Error transfer function model (OE see Equation \ref{eq:trfctmodels} from chapter 4 ) whose order $n_{a}$ (order of the denominator)  and $n_{b}$
@@ -789,7 +780,7 @@ in table \ref{table:model order}
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|}
-\hline  & n_{b} & n_{a} \\
+\hline  & $n_{b}$ & $n_{a}$ \\
 \hline 1) & 0 & 1  \\
 \hline 2) & 1 & 2  \\
 \hline 3) & 2 & 3  \\
@@ -804,22 +795,23 @@ For each model order, the Non parametric-parametric transfer function fit, pole-
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G1mod01FrfFit.png}
+  \includegraphics[width=.6\linewidth]{G1mod01FrfFit.png}
   \caption{FRF fit}
   \label{fig:frf fit G1mod0/1}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G1mod01pzmap.png}
+  \includegraphics[width=.6\linewidth]{G1mod01pzmap.png}
   \caption{pole-zero map}
   \label{fig:pzmap G1mod0/1}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[scale=0.38]{G1mod01InOut.png}
+  \includegraphics[scale=0.3]{G1mod01InOut.png}
   \caption{Measured and Estimated outputs}
   \label{fig:inoutG10/1}
 \end{subfigure}
@@ -832,22 +824,26 @@ From figure \ref{fig:inoutG10/1} we can see that the fit is not good.The model i
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G1mod12FrfFit.png}
+  \includegraphics[width=.6\linewidth]{G1mod12FrfFit.png}
   \caption{FRF fit}
   \label{fig:frf fit G1mod1/2}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+
+ \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G1mod12pzmap.png}
+  \includegraphics[width=.6\linewidth]{G1mod12pzmap.png}
   \caption{pole-zero map}
   \label{fig:pzmap G1mod1/2}
 \end{subfigure}
+\end{figure}
+\clearpage
 
-\begin{subfigure}{\textwidth}
+\begin{figure}[H]\ContinuedFloat
+ \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[scale=0.38]{G1mod12InOut.png}
+  \includegraphics[scale=0.3]{G1mod12InOut.png}
   \caption{Measured and Estimated outputs}
   \label{fig:inoutG11/2}
 \end{subfigure}
@@ -861,22 +857,25 @@ From figure \ref{fig:inoutG11/2} we can see that we have a good fit.Steady state
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G1mod23FrfFit.png}
+  \includegraphics[width=.6\linewidth]{G1mod23FrfFit.png}
   \caption{FRF fit}
   \label{fig:frf fit G1mod2/3}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+\end{figure}
+\clearpage
+\begin{figure}[H]\ContinuedFloat
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G1mod23pzmap.png}
+  \includegraphics[width=.6\linewidth]{G1mod23pzmap.png}
   \caption{pole-zero map}
   \label{fig:pzmap G1mod2/3}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[scale=0.38]{G1mod23InOut.png}
+  \includegraphics[scale=0.3]{G1mod23InOut.png}
   \caption{Measured and Estimated outputs}
   \label{fig:inoutG12/3}
 \end{subfigure}
@@ -890,7 +889,7 @@ From figure \ref{fig:inoutG12/3} we can see that the fit is as good as with the 
 The second step was to do a cross validation check with new data set to validate the model obtained.Three  experiments were carried out, a first simulation with one day of data with input multisine signal,a second one with one day of data with input an arbitrary signal and a last one with one month of data with multisine input signal.The multisines's frequencies were all in the excitation band of the estimation.The Dry Bulb outside temperature was set to zero in the weather file used by EnergyPlus. Figure \ref{fig:G1onedayValidation15/07}shows the results of the model validation for one day of data.The simulation was done on the 15th of July with as input a multisine with an RMS value of 2kW.
 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{G1_15_07_MS.png}
+    \includegraphics[scale=0.8,width=0.8\textwidth]{G1_15_07_MS.png}
     \centering
     \caption{$G_{1}$ validation model 15th of July multisine Result}
     \label{fig:G1onedayValidation15/07}
@@ -900,7 +899,7 @@ The second step was to do a cross validation check with new data set to validate
 We can see from Figure \ref{fig:G1onedayValidation15/07} that the fit is good.The model is able to predict outputs with new data from another month different of the estimation month.The second experiment was also done on the 15th of July with an arbitary input excitation signal with an RMS value of 2.5kW. Figure \ref{fig:G1onedayValidation15/07Ran} shows the results obtained.
 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{G1_15_07_RanIn.png}
+    \includegraphics[scale=0.8,width=0.8\textwidth]{G1_15_07_RanIn.png}
     \centering
     \caption{$G_{1}$ validation model 15th of July arbitrary Result}
     \label{fig:G1onedayValidation15/07Ran}
@@ -919,13 +918,13 @@ We can see from Figure \ref{fig:G1onedayValidation15/07Ran} that the fit is good
 \noindent
 We can see from Figure \ref{fig:G1onedayValidationNov} that the fit is good.The model is able to predict outputs with new data and different month than the estimation month.The identification of the Heater model $G_{1}$ gave satisfactory results.The next step is the identification of the Dry Bulb to operative temperature $G_{2}$.
 
-\subsection{Identification of Dry Bulb Model G2 }
+\section{Identification of Dry Bulb Model G2 }
 Due to the nature of the excitation signal; the dry bulb outside temperature, the parametric model $G_{2}$ was obtained directly that is there was no non-parametric model estimated in a first step.
 
-\subsubsection{Excitation design}
-The dry bulb temperature being a non uncontrollable input,typical measurements value were obtained from a weather file.The robust method is to be used with sinusoidal input signal that is why a non-parametric model was not estimated.Usually to estimate the FRF multiple experiments are made and averaging techniques are then used to estimate the FRF.With data from the weather file only a single experiment could be made.
+\subsection{Excitation design}
+The dry bulb temperature being a non uncontrollable input,typical dry bulb temperature value were obtained from a weather file.The robust method is to be used with sinusoidal input signal that is why a non-parametric model was not estimated.Usually to estimate the FRF multiple experiments are made and averaging techniques are then used to estimate the FRF.With data from the weather file only a single experiment could be made.
 
-\subsubsection{Model structure}
+\subsection{Model structure}
 The aim of the model is for control purposes.The choice is the same as for the $G_{1}$ model a continuous time parametric black-box model.More precisely an ARMAX transfer function whose whose order $n_{a}$,$n_{b}$ and order of the transient term $n_{i}$ are to be determined.The ARMAX transfer function  is of the form
 
 \begin{equation}
@@ -935,7 +934,7 @@ Y(s_{k}) &=G(s_{k}, \theta) U(k)+T^{\circ}(s_{k}, \theta) \\
 \end{aligned}
 \end{equation}
 
-\subsubsection{Estimation method}
+\subsection{Estimation method}
 The estimator used to obtain $G_{2}$ is the linear least square estimator. Starting from the measured input-output DFT $U(k)$, $Y(k)$ or from a measured frequency response function $G(s_{k})$. The 2F complex-valued vector Z contains the measured
 input-output (DFT) spectra , at a set of F frequencies $s_{k}$, $k = 1, 2, ...,F$
  $$
@@ -978,7 +977,7 @@ The initial estimate used at iteration $i$=1 is obtained with the Levy estimatio
 \Delta \theta^{(i)}=-J_{\mathrm{san}}\left(\theta^{(i-1)}, Z\right) \backslash \varepsilon_{\mathrm{san}}\left(\theta^{(i-1)}, Z\right)
 \end{equation}
 
-\paragraph{Results}
+\subsubsection{Results}
 The estimation was done with input data from a wzeather file and output data from EnergyPlus.The order of the transfer function was chosen from 3 model orders by checking the quality of the fit estimated and measured output and the stability of the model.Once a suitable order provided satisfactory results, series of check were made with new measurements to see if the prediction was still accurate.
 
 \noindent
@@ -987,7 +986,7 @@ Three different model orders were compared.The different values of  $n_{a}$,$n_{
 \begin{table}[H]
 \centering
 \begin{tabular}{|c|c|c|c|}
-\hline  & n_{b} & n_{a} & n_{i} \\
+\hline  & $n_{b}$ & $n_{a}$ & $n_{i}$ \\
 \hline 1) & 0 & 1 & 2 \\
 \hline 2) & 1 & 2 & 3\\
 \hline 3) & 2 & 3 & 4\\
@@ -1002,35 +1001,40 @@ For each model order, the pole-zero map and input-output measurements-estimation
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{Dft_drybulbFeb.png}
+  \includegraphics[width=.6\linewidth]{Dft_drybulbFeb.png}
   \caption{DFT dry bulb temperature month of February}
   \label{fig:DFT G2mod0/1}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]\ContinuedFloat
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G2mod01pzmap.png}
+  \includegraphics[width=.6\linewidth]{G2mod01pzmap.png}
   \caption{pole-zero map}
   \label{fig:pzmap G2mod0/1}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[scale=0.38]{G2mod01InOut.png}
+  \includegraphics[width=\linewidth]{G2mod01InOut.png}
   \caption{Measured and Estimated outputs}
   \label{fig:inoutG20/1}
 \end{subfigure}
 \caption{Results $G_{1}$ Identification with a model order of 0/1 and $n_{i}$=2}
 \label{fig:G2mod0/1}
 \end{figure}
+\FloatBarrier
 
 \noindent
 From figure \ref{fig:inoutG20/1} we can see that the fit is not good.The model is able to follow the dynamics of the system but lacks accuracy. From figure \ref{fig:DFT G2mod0/1} we can see that the excited band is from $0-1,67.10^{-3}\;Hz$/ $0.010\;rad/s$.From figure \ref{fig:pzmap G2mod0/1} we can see that the pole obtained is stable and is in the excited band.The second model order was analysed next.Figure \ref{fig:G2mod1/2} shows the results for the second model order 1/2 and and $n_{i}$=3
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
   \includegraphics[width=.7\linewidth]{G2mod12pzmap.png}
   \caption{pole-zero map}
@@ -1039,7 +1043,7 @@ From figure \ref{fig:inoutG20/1} we can see that the fit is not good.The model i
 
 \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[scale=0.38]{G2mod12InOut.png}
+  \includegraphics[width=.8\linewidth]{G2mod12InOut.png}
   \caption{Measured and Estimated outputs}
   \label{fig:inoutG21/2}
 \end{subfigure}
@@ -1052,16 +1056,16 @@ From figure \ref{fig:inoutG21/2} we can see that we have a good fit.We can see t
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G2mod23pzmap.png}
+  \includegraphics[width=.6\linewidth]{G2mod23pzmap.png}
   \caption{pole-zero map}
   \label{fig:pzmap G2mod2/3}
 \end{subfigure}
 
 \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[scale=0.38]{G2mod23InOut.png}
+  \includegraphics[width=.8\linewidth]{G2mod23InOut.png}
   \caption{Measured and Estimated outputs}
   \label{fig:inoutG22/3}
 \end{subfigure}
@@ -1075,7 +1079,7 @@ From figure \ref{fig:inoutG22/3} we can see that the fit is as good as with the 
 The second step was to do a cross validation check with new data set to validate the model obtained.Two  experiments were carried out, a first simulation with one day of data and a second one with one month of data .The heater power was set to zero in  EnergyPlus. Figure \ref{fig:G2onedayValidation10/07}shows the results of the model validation for one day of data.The simulation was done on the 10th of July with as input the dry bulb temperature of the 10th of July obtained from the weather file..No transient term with data set from the month of July was estimated.
 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{G2_10_07.png}
+    \includegraphics[width=.8\textwidth]{G2_10_07.png}
     \centering
     \caption{$G_{2}$ validation model 10th of July  Result}
     \label{fig:G2onedayValidation10/07}
@@ -1085,7 +1089,7 @@ The second step was to do a cross validation check with new data set to validate
 From  figure \ref{fig:G2onedayValidation10/07} we can see that the fit is acceptable.The model obtained with data from the month of February is able to follow the dynamics with data from the month of July.The second experiment was  done on the month of October with input the dry bulb temperature of the month of October obtained from the weather file. Figure \ref{fig:G2oneMONTHValidation} shows the results obtained.No transient term with data set from the month of October was estimated.
 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{G2_val_OCT.png}
+    \includegraphics[width=.9\textwidth]{G2_val_OCT.png}
     \centering
     \caption{$G_{2}$ validation model month of October Result}
     \label{fig:G2oneMONTHValidation}
@@ -1095,55 +1099,62 @@ From  figure \ref{fig:G2oneMONTHValidation} we can see that the fit is not good.
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G2_Jan.png}
+  \includegraphics[width=\linewidth]{G2_Jan.png}
   \caption{$G_{2}$ model January}
   \label{fig:G2 Jan}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G2_June.png}
+  \includegraphics[width=\linewidth]{G2_June.png}
   \caption{$G_{2}$ model June}
   \label{fig:G2 June}
 \end{subfigure}
+\end{figure}
+\clearpage
 
+
+\begin{figure}[H]\ContinuedFloat
 \begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[scale=0.38]{G2_Oct.png}
+  \includegraphics[width=.8\linewidth]{G2_Oct.png}
   \caption{$G_{2}$ model October}
   \label{fig:G2 october}
 \end{subfigure}
-\caption{Results $G_{2}$ with data from that month}
+\caption{Results $G_{2}$ with data from the same month}
 \label{fig:G2othermonth}
 \end{figure}
 
-\subsection{Parameterization of coefficients of G2 models}
+\section{Parameterization of coefficients of G2 models}
 In the previous section it was seen that a $G_{2}$ model estimated with data from a particular month will not do a good prediction if used to predict the output for a different month.It happens that the poles and zeroes of the models obtained from each month are close.Figure\ref{fig:pzmapmanymonths} shows the pole-zero map for different months.
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
   \includegraphics[width=.7\linewidth]{G2_jan_pzmap.png}
   \caption{$G_{2}$ January pole-zero map}
   \label{fig:G2_jan_pzmap}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+\end{figure}
+
+\begin{figure}[H] \ContinuedFloat
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G2_apr_pzmap.png}
+  \includegraphics[width=.55\linewidth]{G2_apr_pzmap.png}
   \caption{$G_{2}$ model April pole-zero map}
   \label{fig:G2_apr_pzmap}
 \end{subfigure}
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G2_aug_pzmap.png}
+  \includegraphics[width=.55\linewidth]{G2_aug_pzmap.png}
   \caption{$G_{2}$ model August pole-zero map}
   \label{fig:G2_aug_pzmap}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{G2_dec_pzmap.png}
+  \includegraphics[width=.55\linewidth]{G2_dec_pzmap.png}
   \caption{$G_{2}$ model December pole-zero map}
   \label{fig:G2_dec_pzmap}
 \end{subfigure}
@@ -1161,7 +1172,7 @@ A bode diagram of the 12 months can also be viewed from figure\ref{fig;bodeG2}.W
 \end{figure}
 
 
-\subsubsection{Method}
+\subsection{Method}
 The method consists of carrying out 12 identification procedures to determine the coefficients $n_{a}$ and $n_{b}$ of $G_{2}$ for each month.Then a quadratic curve is fitted to each of the coefficients by cubic spline interpolation. Cubic spline interpolation is the process of constructing a spline $f:\left[x_{1}, x_{n+1}\right] \rightarrow \mathbb{R}$ which consists of $n$ polynomials of degree three, referred to as $f_{1}$ to $f_{n}$. A spline is a function defined by piecewise polynomials.The  interpolation function traverses all $n+1$ points.The resulting function has the following structure:
 
 $$
@@ -1176,27 +1187,31 @@ Figure\ref{fig:fitcurves} shows the fitted curve obtained for each coefficient.T
 
 \begin{figure}[H]
 \centering
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=.7\linewidth]{coeffna2.eps}
+\begin{subfigure}{\textwidth}
+\centering
+  \includegraphics[width=.6\linewidth]{coeffna2.eps}
   \caption{coefficient $n_{a_{2}}$}
   \label{fig:coeffna2}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
-  \centering
-  \includegraphics[width=.7\linewidth]{coeffna1.eps}
+\end{subfigure}
+\begin{subfigure}{\textwidth}
+\centering
+  \includegraphics[width=.6\linewidth]{coeffna1.eps}
   \caption{coefficient $n_{a_{1}}$}
   \label{fig:coeffna1}
 \end{subfigure}
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{coeffnb1.eps}
+  \includegraphics[width=.6\linewidth]{coeffnb1.eps}
   \caption{coefficient $n_{b_{1}}$}
   \label{fig:coeffnb1}
-\end{subfigure}%
-\begin{subfigure}{.5\textwidth}
+\end{subfigure}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]\ContinuedFloat
+\begin{subfigure}{\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{coeffnb0.eps}
+  \includegraphics[width=.6\linewidth]{coeffnb0.eps}
   \caption{coefficient $n_{b_{0}}$}
   \label{fig:coeffnb0}
 \end{subfigure}
@@ -1215,32 +1230,28 @@ The next step is to compare the results obtained by the Least square estimation 
     \label{fig:valparG2}
 \end{figure}
 
-\subsection{Simultaneous identification of G1 and G2}
+\section{Simultaneous simulation  of G1 and G2}
 At this stage we were able to estimate separately the models $G_{1}$ and $G_{2}$. Since we assumed the system to be a LTI system, the combined responses of $G_{1}$ and $G_{2}$ to inputs $u_{1}$ and $u_{2}$, where $u_{1}$ and $u_{2}$ are the heater power and dry bulb temperature respectively should be equivalent to applying those two inputs to a global system model $G$ representing the model of the thermal behaviour of the building.Fig.\ref{fig;heatDrycombJan} and 
 Fig.\ref{fig;heatDrycombApr} illustrates the results of two simulations on January and April done with $u_{1}$ a sine wave of RMS value of 3kW and $u_{2}$ the corresponding dry bulb temperature on the weather file.We can compare the results obtained from EnergyPlus ($G$) with the predicted output from  models $G_{1}$ and $G_{2}$.
 
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{heatDrycombJan.png}
+    \includegraphics[width=.9\textwidth]{heatDrycombJan.png}
     \centering
     \caption{simuation with $u_{1}$ and $u_{2}$  month of January}
     \label{fig;heatDrycombJan}
 \end{figure}
 \begin{figure}[H]
-    \includegraphics[width=\textwidth]{heatDrycombApr.png}
+    \includegraphics[width=.9\textwidth]{heatDrycombApr.png}
     \centering
     \caption{simuation with $u_{1}$ and $u_{2}$  month of April}
     \label{fig;heatDrycombApr}
 \end{figure}
 
 It can be seen from Fig.\ref{fig;heatDrycombJan} and Fig.\ref{fig;heatDrycombApr} that we have a good fit of the measured and predicted outputs. The RMSE for the two results is equally less than $1^{\circ} C$. We obtained values of $0.4^{\circ} C$ for the month of January and $0.3^{\circ} C$
-for the month of April.The next issue that was investigated was the simultaneous estimation of $G_{1}$ and $G_{2}$ which is equivalent to estimating the frequency response matrix (FRM) as shown in \ref{eq:matrix form2}.
-
-\subsubsection{Excitation design}
-
-
-
+for the month of April.
 
 \newpage
-\section{Conclusion}
+\chapter{Conclusion}
+
 
 \end{document}

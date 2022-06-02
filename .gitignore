@@ -1,0 +1,10 @@
+*-eps-converted-to.pdf
+*.aux
+*.lof
+*.log
+*.out
+main.pdf
+*.synctex.gz
+*.toc
+*.bbl
+*.blg
